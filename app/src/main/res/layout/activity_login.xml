@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
+    android:background="@color/colorRed"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -11,55 +12,117 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".ui.login.LoginActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideInset">
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="match_parent"
-            android:layout_height="213dp"
-            android:background="#FF0101"
-            app:srcCompat="@drawable/dawini"
-            android:layout_marginBottom="20dp"
-/>
-
-        <EditText
-            android:id="@+id/username"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="@string/prompt_email"
-            android:inputType="textEmailAddress"
-            android:padding="10dp"
-            android:selectAllOnFocus="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:padding="20dp"
+            android:gravity="center"
+            android:theme="@style/AppTheme"
+            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="match_parent"
+                android:layout_height="213dp"
+                android:background="#FF0101"
+                app:srcCompat="@drawable/dawini"
+                android:layout_marginBottom="20dp"
+                />
 
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="@string/prompt_password"
-            android:imeActionLabel="@string/action_sign_in_short"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:padding="10dp"
-            android:selectAllOnFocus="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/username" />
+            <com.github.florent37.materialtextfield.MaterialTextField
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:mtf_cardCollapsedHeight="1dp"
+                app:mtf_image="@drawable/email"
+                app:mtf_labelColor="@color/colorAccent2">
 
-        <Button
-            android:id="@+id/login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="15dp"
-            android:text="Connecter" />
-    </LinearLayout>
+                <EditText
+                    android:id="@+id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter Email"
+                    android:textColor="#34495e" />
+
+            </com.github.florent37.materialtextfield.MaterialTextField>
+
+            <com.github.florent37.materialtextfield.MaterialTextField
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                app:mtf_cardCollapsedHeight="1dp"
+                app:mtf_image="@drawable/password"
+                app:mtf_labelColor="@color/colorAccent2">
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter Password"
+                    android:inputType="textPassword"
+                    android:textColor="#34495e" />
+
+            </com.github.florent37.materialtextfield.MaterialTextField>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+
+                <Button
+                    android:id="@+id/login"
+                    style="@style/AppTheme.RoundedCornerMaterialButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Login" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/forgot_pass"
+                    style="@style/fonts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" mot de passe oublié" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="|"
+                    style="@style/fonts"
+                    android:textStyle="bold"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <TextView
+                    android:id="@+id/register_now"
+                    style="@style/fonts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" S'inscrire maintenant" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
 
 </RelativeLayout>

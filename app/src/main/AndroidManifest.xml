@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/dawini"
@@ -20,8 +21,8 @@
         <activity android:name=".Liste_Des_Categories"></activity>
         <activity android:name=".Liste_Des_Doctors" />
         <activity android:name=".Creation_Compte" />
-        <activity android:name=".ui.login.LoginActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ui.login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
