@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:gravity="center"
+    tools:context=".ui.login.Step2">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:theme="@style/AppTheme">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="sans-serif-light"
+                android:padding="5dp"
+                android:text="Des informations personel"
+                android:textAlignment="center"
+                android:textColor="@color/gen_black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:typeface="monospace" />
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/Etape2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="TextView"
+                android:textAlignment="textEnd"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/prenom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Prenom"
+                android:textColorHint="@color/gen_black"
+                android:inputType="textPersonName"
+                app:met_baseColor="#212121"
+                app:met_clearButton="true"
+                app:met_errorColor="#F44336"
+                app:met_floatingLabel="highlight"
+                app:met_primaryColor="#757575" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/nom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Nom"
+                android:inputType="textPersonName"
+                android:textColorHint="@color/gen_black"
+                app:met_baseColor="#212121"
+                app:met_clearButton="true"
+                app:met_errorColor="#F44336"
+                app:met_floatingLabel="highlight"
+                app:met_primaryColor="#757575" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/cin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Numero CIN"
+                android:inputType="number"
+                android:textColorHint="@color/gen_black"
+                app:met_baseColor="#212121"
+                app:met_clearButton="true"
+                app:met_errorColor="#F44336"
+                app:met_floatingLabel="highlight"
+                app:met_primaryColor="#757575"/>
+            <!-- l utilisation de focusableInTouchMode=false Because when the EditText is first touched it calls the focus event and on second touch it call the click event so you have to disable the focus event first. -->
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/date_naisse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Date de Naissence"
+
+                android:focusableInTouchMode="false"
+                android:inputType="textPersonName"
+                android:textColorHint="@color/gen_black"
+                app:met_baseColor="#212121"
+                app:met_clearButton="true"
+                app:met_errorColor="#F44336"
+                app:met_floatingLabel="highlight"
+                app:met_primaryColor="#757575" />
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</FrameLayout>
