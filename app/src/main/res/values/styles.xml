@@ -19,4 +19,8 @@
         <item name="android:textColor">#fff</item>
         <item name="android:textSize">15sp</item>
     </style>
+    <style name="AppTheme.WhiteAccent">
+        <item name="colorAccent">#fff</item> <!-- Whatever color you want-->
+    </style>
+
 </resources>

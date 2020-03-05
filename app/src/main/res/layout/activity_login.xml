@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
-    android:background="@color/colorRed"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F44336"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -15,24 +15,23 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:scrollbarStyle="insideInset">
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
             android:gravity="center"
-            android:theme="@style/AppTheme"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:theme="@style/AppTheme">
+
             <ImageView
                 android:id="@+id/imageView3"
                 android:layout_width="match_parent"
                 android:layout_height="213dp"
-                android:background="#FF0101"
-                app:srcCompat="@drawable/dawini"
                 android:layout_marginBottom="20dp"
-                />
+                app:srcCompat="@drawable/dawini" />
 
             <com.github.florent37.materialtextfield.MaterialTextField
                 android:layout_width="match_parent"
@@ -72,9 +71,9 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:layout_height="match_parent"
                 android:layout_marginTop="10dp"
+                android:gravity="center_horizontal"
                 android:orientation="horizontal">
 
 
@@ -82,16 +81,17 @@
                     android:id="@+id/login"
                     style="@style/AppTheme.RoundedCornerMaterialButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Login" />
+                    android:layout_height="match_parent"
+                    android:text="Login"
+                    android:textColor="#FFFFFF" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
                 android:layout_marginTop="20dp"
+                android:gravity="center_horizontal"
                 android:orientation="horizontal">
 
                 <TextView
@@ -102,13 +102,13 @@
                     android:text=" mot de passe oublié" />
 
                 <TextView
+                    style="@style/fonts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="|"
-                    style="@style/fonts"
-                    android:textStyle="bold"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"/>
+                    android:layout_marginRight="10dp"
+                    android:text="|"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/register_now"
@@ -122,7 +122,6 @@
         </LinearLayout>
 
     </ScrollView>
-
 
 
 </RelativeLayout>

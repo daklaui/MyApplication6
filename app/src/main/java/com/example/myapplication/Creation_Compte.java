@@ -104,10 +104,6 @@ public class Creation_Compte extends AppCompatActivity {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedpreferences.edit();
-                                editor.putString("Inscription","true");
-                                editor.commit();
                                 startActivity(new Intent(Creation_Compte.this,LoginActivity.class));
 
                             }
