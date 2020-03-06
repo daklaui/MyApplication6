@@ -13,8 +13,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
@@ -24,15 +27,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.NetworkError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapter.CategroieAdpater;
 import com.example.myapplication.Adapter.DoctorAdpater;
 import com.example.myapplication.data.model.Categorie;
 import com.example.myapplication.data.model.Doctor;
+import com.example.myapplication.ui.login.LoadingDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +62,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
     LocationManager locationManager;
     TextView mypos;
     private static CategroieAdpater adapter;
-
+    LoadingDialog loadingDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,71 +73,40 @@ public class Liste_Des_Categories extends AppCompatActivity {
 
         setContentView(R.layout.activity_liste__des__categories);
         listView = (ListView) findViewById(R.id.listcategories);
-         getlocationBtn= findViewById(R.id.pos);
-        mypos=findViewById(R.id.mypos);
+        loadingDialog = new LoadingDialog(Liste_Des_Categories.this);
+        //getlocationBtn= findViewById(R.id.pos);
+        //mypos=findViewById(R.id.mypos);
         doctors = new ArrayList<>();
         /**********************************/
-        String JSON_URL = "http://92.222.83.184:9999/api/Categorie";
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                ArrayList<Categorie> categories = new ArrayList<>();
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        JSONObject jsonObject = response.getJSONObject(i);
+        loadingDialog.startLoadingDialog();
 
-                        Categorie categorie = new Categorie();
-                        categorie.setTitre(jsonObject.getString("TITRE_CATEGORIE"));
-
-                        categories.add(categorie);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.e("Volleyt", e.toString());
-                    }
-                }
-                Log.e("Tab", String.valueOf(categories.size()));
-
-                adapter = new CategroieAdpater(Liste_Des_Categories.this, categories);
-                listView.setAdapter(adapter);
-            }
-
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Volley", error.toString());
-
-            }
-        });
-
-        requestQueue.add(jsonArrayRequest);
+        GetApi();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //    Toast.makeText(Liste_Des_Categories.this,adapter.getItem(position).getTitre(),Toast.LENGTH_LONG).show();
 
-                    //GPS is already On then
-                  // Toast.makeText(Liste_Des_Categories.this,   mypos.getText().length(),Toast.LENGTH_LONG).show();
+                //GPS is already On then
+                // Toast.makeText(Liste_Des_Categories.this,   mypos.getText().length(),Toast.LENGTH_LONG).show();
+                Intent myIntent = new Intent(Liste_Des_Categories.this, Find_Doctors.class);
+                myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
+                startActivity(myIntent);
+               /* if (mypos.getText().length() != 0) {
+                    Intent myIntent = new Intent(Liste_Des_Categories.this, Find_Doctors.class);
+                 //   myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
+                   // myIntent.putExtra("Adresse", mypos.getText().toString());
 
-                       if(mypos.getText().length()!=0) {
-                           Intent myIntent = new Intent(Liste_Des_Categories.this, Liste_Des_Doctors.class);
-                           myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
-                           myIntent.putExtra("Adresse", mypos.getText().toString());
-                           startActivity(myIntent);
-                       }
-                       else
-                       {
-                           Toast.makeText(Liste_Des_Categories.this, "Merci verifier", Toast.LENGTH_SHORT).show();
-                       }
-
-
-
+                } else {
+                    Toast.makeText(Liste_Des_Categories.this, "Merci verifier", Toast.LENGTH_SHORT).show();
+                }
+*/
 
             }
         });
 
+
+/*
         getlocationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -294,7 +274,8 @@ public class Liste_Des_Categories extends AppCompatActivity {
         final AlertDialog alertDialog=builder.create();
         alertDialog.show();
     }
-
+*/
+    }
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -311,4 +292,91 @@ public class Liste_Des_Categories extends AppCompatActivity {
 
                 }).create().show();
     }
+    private void GetApi()
+    {
+        String JSON_URL = "http://92.222.83.184:9999/api/Categorie";
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+
+                ArrayList<Categorie> categories = new ArrayList<>();
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        JSONObject jsonObject = response.getJSONObject(i);
+
+                        Categorie categorie = new Categorie();
+                        categorie.setTitre(jsonObject.getString("TITRE_CATEGORIE"));
+
+                        categories.add(categorie);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.e("Volleyt", e.toString());
+                    }
+                }
+                Log.e("Tab", String.valueOf(categories.size()));
+
+                adapter = new CategroieAdpater(Liste_Des_Categories.this, categories);
+                listView.setAdapter(adapter);
+                loadingDialog.fermer();
+
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    loadingDialog.fermer();
+
+                    int errorCode = 0;
+                    if (error instanceof TimeoutError) {
+                        errorCode = -7;
+
+                    } else if (error instanceof NoConnectionError) {
+                        errorCode = -1;
+                    } else if (error instanceof AuthFailureError) {
+                        errorCode = -6;
+                    } else if (error instanceof ServerError) {
+                        errorCode = 0;
+                    } else if (error instanceof NetworkError) {
+                        errorCode = -1;
+                    } else if (error instanceof ParseError) {
+                        errorCode = -8;
+                    }
+                    Toast.makeText(Liste_Des_Categories.this, error.toString(), Toast.LENGTH_SHORT).show();
+                }
+                //
+            }
+        });
+
+        requestQueue.add(jsonArrayRequest);
+    }
+
+    public boolean InternetConnection()
+    {
+        boolean flag=false;
+        ConnectivityManager connectivity = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        flag=true;
+
+                    }
+
+        }
+        if(flag==true)
+        {
+            return  true;
+        }
+        else
+        {
+            return  false;
+        }
+    }
 }
+
