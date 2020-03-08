@@ -6,6 +6,16 @@ public class Doctor {
     public String prenom ;
     public String numeroTel ;
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int id;
+
     public String getNom() {
         return nom;
     }

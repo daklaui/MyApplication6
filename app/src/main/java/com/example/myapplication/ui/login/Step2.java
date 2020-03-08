@@ -12,6 +12,7 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
@@ -23,6 +24,8 @@ import java.util.Calendar;
 
 public class Step2 extends Fragment {
 EditText Date_naisse;
+    CheckBox H,F;
+    String Sexe="";
     DatePickerDialog.OnDateSetListener dateSetListener;
     public Step2() {
         // Required empty public constructor
@@ -33,9 +36,40 @@ EditText Date_naisse;
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_step2, container, false);
         Date_naisse=view.findViewById(R.id.date_naisse);
-
+        H=view.findViewById(R.id.H);
+        F=view.findViewById(R.id.F);
       //  Date_naisse.setInputType(InputType.TYPE_NULL);
         Date_naisse.setClickable(true);
+
+/*******************************CheckBox***********************************************/
+        H.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Sexe="H";
+                if(H.isChecked()){
+                    H.setChecked(true);
+                    F.setEnabled(false);
+                }else{
+                    H.setChecked(false);
+                    F.setEnabled(true);
+                }
+            }
+        });
+
+        F.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Sexe="F";
+                if(F.isChecked()){
+                    F.setChecked(true);
+                    H.setEnabled(false);
+                }else{
+                    F.setChecked(false);
+                    H.setEnabled(true);
+                }
+            }
+        });
+/************************************FIN****************************************************/
 
 
         /******************************************************/

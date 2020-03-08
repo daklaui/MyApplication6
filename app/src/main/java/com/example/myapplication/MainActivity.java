@@ -31,11 +31,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 openMainActivity();
-                 if (isConnected()) {
-                    openMainActivity();
-                } else {
-                    openLoginActivity();
-                }
+
             }
 
 
@@ -57,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openMainActivity() {
 
-        startActivity(new Intent(this, Creation_Compte.class));
+        startActivity(new Intent(this, LoginActivity.class));
         finishAffinity();
     }
 

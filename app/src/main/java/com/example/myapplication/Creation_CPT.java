@@ -20,6 +20,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -50,7 +51,8 @@ public class Creation_CPT extends AppCompatActivity {
 Button btnNext,btnSkip,btnValide;
 EditText Email,Password,PasswordConfor,Prenom,Nom,Numero_Cin,Date_Naissence,Numero_Tel,Cp,Adresse;
 TextView etap1,etap2,etap3;
-
+CheckBox H,F;
+    String sexe="";
     JSONObject jsonObject;
     private CustomViewPagerNoSwip viewPager;
      LoadingDialog loadingDialog;
@@ -161,8 +163,8 @@ TextView etap1,etap2,etap3;
             Nom=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.nom);
             Numero_Cin=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.cin);
             Date_Naissence=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.date_naisse);
-
-
+            H=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.H);
+            F=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.F);
 
 /****************************************************************************************/
 
@@ -181,6 +183,12 @@ TextView etap1,etap2,etap3;
             else  if(cin.length()<8 || cin.length()>8)
             {
                 Numero_Cin.setError("Veuillez saisir 8 chiffre" );
+            }
+
+            else if (!H.isChecked() && !F.isChecked())
+            {
+               H.setError("");
+               F.setError("");
             }
 
             else
@@ -222,6 +230,14 @@ TextView etap1,etap2,etap3;
      } else {
          if (InternetConnection()) {
 
+             if (H.isChecked())
+             {
+               sexe="H";
+             }
+             else if(F.isChecked())
+             {
+                 sexe="F";
+             }
 
              /**********************************APELLE API*************************************************************/
              loadingDialog.startLoadingDialog();
@@ -235,6 +251,7 @@ TextView etap1,etap2,etap3;
         jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
         jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
         jsonObject.put("MDP_CLIENT", Password.getText().toString());
+        jsonObject.put("GENRE_CLIENT", sexe);
 
     } catch (JSONException e) {
         e.printStackTrace();
@@ -306,6 +323,17 @@ TextView etap1,etap2,etap3;
             return  false;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intCloseApp.addCategory(Intent.CATEGORY_HOME);
+        intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intCloseApp);
+    }
 }
 
 
@@ -331,3 +359,4 @@ class AuthenticationPagerAdapter extends FragmentPagerAdapter {
         fragmentList.add(fragment);
     }
 }
+

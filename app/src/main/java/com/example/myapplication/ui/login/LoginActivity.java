@@ -39,9 +39,11 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapter.DoctorAdpater;
+import com.example.myapplication.Creation_CPT;
 import com.example.myapplication.Creation_Compte;
 import com.example.myapplication.Liste_Des_Categories;
 import com.example.myapplication.Liste_Des_Doctors;
+import com.example.myapplication.Menu;
 import com.example.myapplication.R;
 import com.example.myapplication.data.model.Doctor;
 import com.example.myapplication.ui.login.LoginViewModel;
@@ -56,11 +58,20 @@ import java.util.ArrayList;
 public class LoginActivity extends AppCompatActivity {
     JSONObject jsonObject;
     private LoginViewModel loginViewModel;
-
+SharedPreferences sharedpreferences;
+TextView register_now;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        register_now=findViewById(R.id.register_now);
+
+        register_now.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, Creation_CPT.class));
+            }
+        });
         loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
 
@@ -113,19 +124,23 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
 
                                     // Toast.makeText(LoginActivity.this, r, Toast.LENGTH_SHORT).show();
 
-                                    if(r.contains("bien"))
+                                    if(!r.contains("Not"))
                                     {
                                         loadingDialog.fermer();
-                                        startActivity(new Intent(LoginActivity.this, Liste_Des_Categories.class));
+                                         sharedpreferences = getSharedPreferences("client", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                                         editor.putInt("Id_client",Integer.parseInt(r));
+                                          editor.commit();
+                                        startActivity(new Intent(LoginActivity.this, Menu.class));
                                     }
                                     else
                                     {
                                         loadingDialog.fermer();
                                         Toast.makeText(LoginActivity.this, "Merci de verifier votre login", Toast.LENGTH_SHORT).show();
                                     }
-                                    // sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                                    //  sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
                                     //  SharedPreferences.Editor editor = sharedpreferences.edit();
-                                    // editor.putString("Inscription","true");
+                                    //  editor.putString("Inscription","true");
                                     //  editor.commit();
 
 
@@ -156,11 +171,14 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
 
     @Override
     public void onBackPressed() {
-       // super.onBackPressed();
-           super.finish();
-        System.exit(0);
+        Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intCloseApp.addCategory(Intent.CATEGORY_HOME);
+        intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intCloseApp);
     }
-
     public boolean InternetConnection()
     {
         boolean flag=false;
@@ -185,7 +203,11 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
         {
           return  false;
         }
+
+
     }
+
+
     }
 
 
