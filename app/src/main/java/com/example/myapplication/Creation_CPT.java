@@ -9,6 +9,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -96,12 +97,16 @@ CheckBox H,F;
                else if(position==0)
                 {
                     btnSkip.setVisibility(View.GONE);
+                    btnNext.setVisibility(View.VISIBLE);
+                    btnValide.setVisibility(View.GONE);
                 }
                 else {
 
                     // still pages are left
                     btnNext.setText("suivant");
                     btnSkip.setVisibility(View.VISIBLE);
+                    btnNext.setVisibility(View.VISIBLE);
+                    btnValide.setVisibility(View.GONE);
                 }
             }
 
@@ -245,6 +250,7 @@ CheckBox H,F;
              }
 
              /**********************************APELLE API*************************************************************/
+             btnValide.setEnabled(false);
              loadingDialog.startLoadingDialog();
     /***************************************************SENDMESSAGECONFIRMATION***************************************************************/
               _code=SEND_MESSAGE(num_tel);
@@ -332,6 +338,19 @@ CheckBox H,F;
              AlertDialog dialog=builder.create();
              loadingDialog.fermer();
              dialog.show();
+
+          dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+              @Override
+              public void onDismiss(DialogInterface dialog) {
+                  btnValide.setEnabled(true);
+              }
+          });
+          dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+              @Override
+              public void onCancel(DialogInterface dialog) {
+                  btnValide.setEnabled(true);
+              }
+          });
              /***********************************************************************************************************************************************/
        /*
 

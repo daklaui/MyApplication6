@@ -54,6 +54,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
     JSONObject jsonObject;
@@ -74,10 +75,15 @@ TextView register_now;
         });
         loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
-
+        sharedpreferences = getSharedPreferences("client", Context.MODE_PRIVATE);
         final EditText usernameEditText = findViewById(R.id.username);
         final EditText passwordEditText = findViewById(R.id.password);
         final Button loginButton = findViewById(R.id.login);
+        if(sharedpreferences.getBoolean("Connect",false))
+        {
+            startActivity(new Intent(LoginActivity.this,Liste_Des_Categories.class));
+        }
+
 final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -88,16 +94,26 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                 String strPassword = passwordEditText.getText().toString();
                 if (TextUtils.isEmpty(strAccount.trim())) {
                     loadingDialog.fermer();
+                    usernameEditText.setError("Ce nom d \\'utilisateur n\\'est pas valide");
                     Toast.makeText(LoginActivity.this, R.string.error_username, Toast.LENGTH_SHORT).show();
 
                     return;
                 }
                 else if (TextUtils.isEmpty(strPassword.trim())) {
                     loadingDialog.fermer();
+                    passwordEditText.setError("Ce mot de passe n\\'est pas valide");
                     Toast.makeText(LoginActivity.this, R.string.error_pwd, Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                else if(!EMAIL_ADDRESS_PATTERN.matcher(strAccount).matches()){
+                    usernameEditText.setError("Veuillez saisir une adresse email valide. Par exemple prenom.nom@domaine.com!" );
+                    loadingDialog.fermer();
+                }
+                else  if(passwordEditText.length()<6)
+                {
+                    passwordEditText.setError("Veuillez saisir au moins 6 caractères" );
+                    loadingDialog.fermer();
+                }
                 else if (InternetConnection()) {
                     jsonObject= new JSONObject();
                     try {
@@ -127,16 +143,19 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                                     if(!r.contains("Not"))
                                     {
                                         loadingDialog.fermer();
-                                         sharedpreferences = getSharedPreferences("client", Context.MODE_PRIVATE);
+
                                         SharedPreferences.Editor editor = sharedpreferences.edit();
                                          editor.putInt("Id_client",Integer.parseInt(r));
+                                        editor.putBoolean("Connect",true);
                                           editor.commit();
                                         startActivity(new Intent(LoginActivity.this, Liste_Des_Categories.class));
                                     }
                                     else
                                     {
                                         loadingDialog.fermer();
-                                        Toast.makeText(LoginActivity.this, "Merci de verifier votre login", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LoginActivity.this, "M3erci de verifier votre login", Toast.LENGTH_SHORT).show();
+                                        usernameEditText.setError("Merci de verifier votre login");
+                                        passwordEditText.setError("Merci de verifier votre mot de passe" );
                                     }
                                     //  sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
                                     //  SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -151,7 +170,9 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
                                     loadingDialog.fermer();
-                                    Toast.makeText(LoginActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                    usernameEditText.setError("Merci de verifier votre login");
+                                    passwordEditText.setError("Merci de verifier votre mot de passe" );
+
                                     Log.e("Tableau",jsonObject.toString());
 
                                 }
@@ -207,6 +228,15 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
 
     }
 
+    public final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile(
+            "[a-zA-Z0-9+._%-+]{1,256}" +
+                    "@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9-]{0,64}" +
+                    "(" +
+                    "." +
+                    "[a-zA-Z0-9][a-zA-Z0-9-]{0,25}" +
+                    ")+"
+    );
 
     }
 
