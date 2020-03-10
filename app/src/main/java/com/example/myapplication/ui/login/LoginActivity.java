@@ -131,7 +131,7 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                                         SharedPreferences.Editor editor = sharedpreferences.edit();
                                          editor.putInt("Id_client",Integer.parseInt(r));
                                           editor.commit();
-                                        startActivity(new Intent(LoginActivity.this, Menu.class));
+                                        startActivity(new Intent(LoginActivity.this, Liste_Des_Categories.class));
                                     }
                                     else
                                     {

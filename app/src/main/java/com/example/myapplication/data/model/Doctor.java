@@ -6,6 +6,15 @@ public class Doctor {
     public String prenom ;
     public String numeroTel ;
 
+    public String getGen() {
+        return gen;
+    }
+
+    public void setGen(String gen) {
+        this.gen = gen;
+    }
+
+    String gen;
     public int getId() {
         return id;
     }

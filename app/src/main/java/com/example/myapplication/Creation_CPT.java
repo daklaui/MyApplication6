@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapter.CustomViewPagerNoSwip;
 import com.example.myapplication.ui.login.LoadingDialog;
@@ -43,8 +45,10 @@ import com.example.myapplication.ui.login.Step3;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 public class Creation_CPT extends AppCompatActivity {
@@ -54,6 +58,7 @@ TextView etap1,etap2,etap3;
 CheckBox H,F;
     String sexe="";
     JSONObject jsonObject;
+    int _code;
     private CustomViewPagerNoSwip viewPager;
      LoadingDialog loadingDialog;
     AuthenticationPagerAdapter pagerAdapter;
@@ -241,47 +246,96 @@ CheckBox H,F;
 
              /**********************************APELLE API*************************************************************/
              loadingDialog.startLoadingDialog();
+    /***************************************************SENDMESSAGECONFIRMATION***************************************************************/
+              _code=SEND_MESSAGE(num_tel);
+             AlertDialog.Builder builder= new AlertDialog.Builder(Creation_CPT.this);
+             View mview=getLayoutInflater().inflate(R.layout.dialoge_confirme_code,null);
+             final EditText editText=mview.findViewById(R.id.editText);
+             Button confirme=mview.findViewById(R.id.confirm_button_inscription);
+             TextView autrecode=mview.findViewById(R.id.autrecode);
 
-    jsonObject= new JSONObject();
-    try {
-        jsonObject.put("NOM_CLIENT", Nom.getText().toString());
-        jsonObject.put("PREN_CLIENT", Prenom.getText().toString());
-        jsonObject.put("CIN_CLIENT", Numero_Cin.getText().toString());
-        jsonObject.put("DATE_NAISS", Date_Naissence.getText().toString());
-        jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
-        jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
-        jsonObject.put("MDP_CLIENT", Password.getText().toString());
-        jsonObject.put("GENRE_CLIENT", sexe);
+             confirme.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View v) {
+                     if(editText.getText().toString().isEmpty())
+                     {
+                         editText.setError("merci de taper un code");
+                     }
+                     else if (editText.getText().length()!=4)
+                     {
+                         editText.setError("code contient 4 chiffres");
+                     }
+                     else
+                     {
+                         if(Integer.parseInt(editText.getText().toString())==_code)
+                         {
 
-    } catch (JSONException e) {
-        e.printStackTrace();
-        loadingDialog.fermer();
-    }
+                             jsonObject= new JSONObject();
+                             try {
+                                 jsonObject.put("NOM_CLIENT", Nom.getText().toString());
+                                 jsonObject.put("PREN_CLIENT", Prenom.getText().toString());
+                                 jsonObject.put("CIN_CLIENT", Numero_Cin.getText().toString());
+                                 jsonObject.put("DATE_NAISS", Date_Naissence.getText().toString());
+                                 jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
+                                 jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
+                                 jsonObject.put("MDP_CLIENT", Password.getText().toString());
+                                 jsonObject.put("GENRE_CLIENT", sexe);
+
+                             } catch (JSONException e) {
+                                 e.printStackTrace();
+                                 loadingDialog.fermer();
+                             }
 
 
-    Log.e("date",jsonObject.toString());
+                             Log.e("date",jsonObject.toString());
 
 
-    String URL = "http://92.222.83.184:9999/api/Client";
-    RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-    JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    startActivity(new Intent(Creation_CPT.this, LoginActivity.class));
-                    loadingDialog.fermer();
-                }
-            },
-            new Response.ErrorListener() {
+                             String URL = "http://92.222.83.184:9999/api/Client";
+                             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                             JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
+                                     new Response.Listener<JSONObject>() {
+                                         @Override
+                                         public void onResponse(JSONObject response) {
+                                             startActivity(new Intent(Creation_CPT.this, LoginActivity.class));
+                                             loadingDialog.fermer();
+                                         }
+                                     },
+                                     new Response.ErrorListener() {
 
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(Creation_CPT.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("Tableau",jsonObject.toString());
-                    loadingDialog.fermer();
-                }
-            });
-    requestQueue.add(objectRequest);
+                                         @Override
+                                         public void onErrorResponse(VolleyError error) {
+                                             Toast.makeText(Creation_CPT.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                             Log.e("Tableau",jsonObject.toString());
+                                             loadingDialog.fermer();
+                                         }
+                                     });
+                             requestQueue.add(objectRequest);
+
+
+                         }
+                         else
+                         {
+                             editText.setError("merci de verifeir");
+                         }
+                     }
+
+                 }
+             });
+
+             autrecode.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View v) {
+                     _code=SEND_MESSAGE(Numero_Tel.getText().toString());
+                 }
+             });
+             builder.setView(mview);
+             AlertDialog dialog=builder.create();
+             loadingDialog.fermer();
+             dialog.show();
+             /***********************************************************************************************************************************************/
+       /*
+
+
              /************************************************************************************************/
          }
            else
@@ -326,6 +380,7 @@ CheckBox H,F;
 
     @Override
     public void onBackPressed() {
+        this.finish();
         Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
         intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -333,6 +388,119 @@ CheckBox H,F;
         intCloseApp.addCategory(Intent.CATEGORY_HOME);
         intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intCloseApp);
+
+    }
+
+
+    public String GETHEURSYS()
+    {
+
+
+        Calendar cc = Calendar.getInstance();
+        int h = cc.get(Calendar.HOUR_OF_DAY);
+        int Min = cc.get(Calendar.MINUTE);
+
+        String Heure="";
+        if(h<10)
+        {
+            Heure="0"+h;
+        }
+        else
+        {
+            Heure=""+h;
+        }
+        String Minute="";
+ if(Min<10)
+ {
+     Minute="0"+Min;
+ }
+ else
+ {
+     Minute=""+Min;
+ }
+        // String date=day_1+"-"+Month_1+"-"+year;
+        return Heure+":"+Minute;
+    }
+
+
+    public int GENERATERANDOMNUMBER()
+    {
+        Random random = new Random();
+        int randomNumber = random.nextInt(9999-1000) + 1000;
+return randomNumber;
+    }
+
+public String GETDATESYS()
+{
+    Calendar cc = Calendar.getInstance();
+    int year = cc.get(Calendar.YEAR);
+    int month = cc.get(Calendar.MONTH);
+    int mDay = cc.get(Calendar.DAY_OF_MONTH);
+
+    month=month+1;
+    String day_1="";
+    String Month_1="";
+    if(mDay<10)
+    {
+        day_1="0"+mDay;
+
+    }
+    else
+    {
+        day_1=String.valueOf(mDay);
+    }
+    if(month<10)
+    {
+        Month_1="0"+month;
+    }
+    else
+    {
+        Month_1=String.valueOf(month);
+    }
+   // String date=day_1+"-"+Month_1+"-"+year;
+    return day_1+"/"+Month_1+"/"+year;
+}
+    boolean test_validté;
+    int code ;
+    public int SEND_MESSAGE(String num_tel)
+    {
+        test_validté=false;
+        code= GENERATERANDOMNUMBER();
+        try {
+
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String url ="https://www.tunisiesms.tn/client/Api/Api.aspx?fct=sms&key=AdmWpJvNJ8BOfsk3XpbZ4iDlo/-/bGP5wLGUCSIsThe4XwCYzAIBJpzUF/WEPPHdi95q170RSbmN4WzpJvlxX9Vsl/-/7YM9IRM4&mobile=216"+num_tel+"&sms="+code+"&sender=Dawini&date="+GETDATESYS()+"&heure="+GETHEURSYS();
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                         //   Toast.makeText(Creation_CPT.this,response,Toast.LENGTH_LONG).show();
+                            loadingDialog.fermer();
+                            test_validté=true;
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.w("That didn't work!",error.getMessage());
+                }
+            });
+
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+        catch (Exception e){}
+
+
+        return  code;
+    }
+
+
+    public  void CreateBuilder()
+    {
+
+
+
     }
 }
 
@@ -359,4 +527,6 @@ class AuthenticationPagerAdapter extends FragmentPagerAdapter {
         fragmentList.add(fragment);
     }
 }
+
+
 

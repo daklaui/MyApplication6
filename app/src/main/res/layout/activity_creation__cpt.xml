@@ -37,7 +37,7 @@
                 <com.example.myapplication.Adapter.CustomViewPagerNoSwip
                     android:id="@+id/viewPage"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
 
                 </com.example.myapplication.Adapter.CustomViewPagerNoSwip>
@@ -60,7 +60,7 @@
                     android:layout_marginRight="10dp"
                     android:onClick="previous_fragment"
                     android:text="précédent"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/gen_black" />
 
                 <Button
                     android:id="@+id/btnNext"
@@ -74,7 +74,7 @@
                     android:layout_marginBottom="0dp"
                     android:onClick="next_fragment"
                     android:text="suivant"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/gen_black" />
 
                 <Button
                     android:id="@+id/btnvValide"
@@ -88,7 +88,7 @@
                     android:layout_marginBottom="0dp"
                     android:onClick="valide_form"
                     android:text="suivant"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/gen_black"
                     android:visibility="gone" />
             </LinearLayout>
 

@@ -19,6 +19,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -98,7 +102,7 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
             String JSON_URL = "http://92.222.83.184:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
             final String adress=getAdresseName();
-             final HashMap<Marker, Integer> markerIdMapping = new HashMap<>();
+             final HashMap<Marker, Doctor> markerIdMapping = new HashMap<>();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
                 @Override
@@ -114,15 +118,17 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
                                 float[]result= new float[10];
                                 doctor.setId(Integer.parseInt(jsonObject.getString("ID_DOCTOR")));
                                 doctor.setNom(jsonObject.getString("NOM_DOCTOR"));
+                            doctor.setPrenom(jsonObject.getString("PREN_DOCTOR"));
+                          doctor.setGen(jsonObject.getString("GENRE_DOCTOR"));
                                 doctor.setNumeroTel(jsonObject.getString("NUM_TEL_DOCTOR"));
                                 doctors.add(doctor);
                                 Log.e("POSITIONMOATAZ",jsonObject.getString("ADRESSE_DOCTOR"));
                                 Location.distanceBetween(getLocation()[0],getLocation()[1],getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).latitude,getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).longitude,result);
 
                               //  Toast.makeText(Find_Doctors.this,adress,Toast.LENGTH_LONG).show();
-
-                                    markerIdMapping.put(  mMap.addMarker(new MarkerOptions().position(getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR"))).title("Beni khaled").snippet(doctor.getNumeroTel())),doctor.getId());
-
+   if(result[0]<=20000) {
+       markerIdMapping.put(mMap.addMarker(new MarkerOptions().position(getLocationFromAddress(Find_Doctors.this, jsonObject.getString("ADRESSE_DOCTOR"))).title(doctor.getNom()+" "+doctor.getPrenom())), doctor);
+   }
 
                            // }
                         } catch (JSONException e) {
@@ -150,75 +156,117 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(final Marker marker) {
-                    Toast.makeText(Find_Doctors.this,marker.getSnippet(),Toast.LENGTH_LONG).show();
-                    // Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + adapter.getItem(position).getNumeroTel()));
-                    sharedPreferences = getSharedPreferences("client", Context.MODE_PRIVATE);
-                    jsonObject= new JSONObject();
                     try {
-                        jsonObject.put("ID_CLIENT_DEMANDE",sharedPreferences.getInt("Id_client", 0));
-                        jsonObject.put("ID_DOCTOR_DEMANDE",markerIdMapping.get(marker));
+                        Doctor dc = markerIdMapping.get(marker);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Find_Doctors.this);
+                        View mview = getLayoutInflater().inflate(R.layout.markerdetaille, null);
+                        final TextView textView = mview.findViewById(R.id.Nom_Doctor);
+                        Button confirme = mview.findViewById(R.id.buttonOk);
+                        TextView num_tel = mview.findViewById(R.id.Num_Tel);
+                        TextView sexe = mview.findViewById(R.id.Sexe2);
+                        textView.setText("Nom et Prenom : " + dc.getNom() + " " + dc.getPrenom());
+                        num_tel.setText("Numero de téléphone : " + dc.getNumeroTel());
+                        sexe.setText("Sexe : " + dc.getGen());
+                        builder.setView(mview);
+                        AlertDialog dialog = builder.create();
+                        //loadingDialog.fermer();
+                        dialog.show();
+
+                        confirme.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                sharedPreferences = getSharedPreferences("client", Context.MODE_PRIVATE);
+                                jsonObject = new JSONObject();
+                                try {
+                                    jsonObject.put("ID_CLIENT_DEMANDE", sharedPreferences.getInt("Id_client", 0));
+                                    Doctor dc = markerIdMapping.get(marker);
+                                    jsonObject.put("ID_DOCTOR_DEMANDE", dc.getId());
 
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
 
-                    }
+                                }
 
-                    String URL = "http://92.222.83.184:9999/api/values";
-                    RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-                    JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    try {
-                                        if(response.getString("results").contains("bien"))
-                                        {
-                                            Log.e("MoatazMessage",response.getString("results"));
-                                            boolean isNumber=false;
-                                            try{
-                                                int x = Integer.parseInt(marker.getSnippet());
-                                                isNumber=true;
-                                            }catch(Exception e){isNumber=false;}
-                                            if(isNumber) {
+                                String URL = "http://92.222.83.184:9999/api/values";
+                                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                                JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
+                                        new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+                                                try {
+                                                    if (response.getString("results").contains("bien")) {
+                                                        Log.e("MoatazMessage", response.getString("results"));
+                                                        boolean isNumber = false;
+                                                        try {
+                                                            int x = Integer.parseInt(marker.getSnippet());
+                                                            isNumber = true;
+                                                        } catch (Exception e) {
+                                                            isNumber = false;
+                                                        }
+                                                        if (isNumber) {
 
-                                                if (ContextCompat.checkSelfPermission(Find_Doctors.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                                                    Log.e("MoatazMessage",marker.getSnippet());
-                                                    ActivityCompat.requestPermissions(Find_Doctors.this, new String[]{android.Manifest.permission.CALL_PHONE}, PHONE_CALL_REQUEST);
-                                                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
-                                                    startActivity(intent);
-                                                } else {
+                                                            if (ContextCompat.checkSelfPermission(Find_Doctors.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                                                Log.e("MoatazMessage", marker.getSnippet());
+                                                                ActivityCompat.requestPermissions(Find_Doctors.this, new String[]{android.Manifest.permission.CALL_PHONE}, PHONE_CALL_REQUEST);
+                                                                //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
+                                                                //startActivity(intent);
+                                                            } else {
 
-                                                    Log.e("MoatazMessage",marker.getSnippet());
-                                                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
-                                                    startActivity(intent);
+                                                                Log.e("MoatazMessage", marker.getSnippet());
+                                                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
+                                                                startActivity(intent);
 
 
+                                                            }
+                                                        }
+                                                    }
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
                                                 }
                                             }
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            },
-                            new Response.ErrorListener() {
+                                        },
+                                        new Response.ErrorListener() {
 
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(Find_Doctors.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                Toast.makeText(Find_Doctors.this, error.getMessage(), Toast.LENGTH_SHORT).show();
 
-                                    Log.e("Tableau",jsonObject.toString());
-                                    //  loadingDialog.fermer();
-                                }
-                            });
-                    requestQueue.add(objectRequest);
+                                                Log.e("Tableau", jsonObject.toString());
+                                                //  loadingDialog.fermer();
+                                            }
+                                        });
+                                requestQueue.add(objectRequest);
+
+                            }
+                        });
 
 
 
 
-                return false;
+
+
+
+
+
+
+
+
+
+
+                   /* Toast.makeText(Find_Doctors.this,marker.getSnippet(),Toast.LENGTH_LONG).show();
+                    // Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + adapter.getItem(position).getNumeroTel()));
+                  /*
+*/
+
+
+                        return false;
                     }
-
+                    catch (Exception e)
+                    {
+                        return false;
+                    }
+                }
             });
         }
 
@@ -234,7 +282,7 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
         mCircle = mMap.addCircle (new CircleOptions()
                 .center(new LatLng(getLocation()[0], getLocation()[1]))
-                .radius(3000)
+                .radius(20000)
                 .fillColor(shadeColor)
                 .strokeColor(strokeColor)
                 .strokeWidth(1));
