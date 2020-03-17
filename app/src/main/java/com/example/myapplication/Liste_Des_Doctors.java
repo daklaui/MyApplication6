@@ -46,7 +46,7 @@ public class Liste_Des_Doctors extends AppCompatActivity {
         Intent myIntent = getIntent();
         /**********************************/
 
-        String JSON_URL = "http://92.222.83.184:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
+        String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
        final String adress=myIntent.getStringExtra("Adresse");
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);

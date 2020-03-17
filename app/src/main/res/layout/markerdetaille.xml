@@ -48,14 +48,32 @@
             android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu erat tincidunt lacus fermentum rutrum."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-        <Button
-            android:id="@+id/buttonOk"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="15dp"
-            android:text="Passer un appel"
-            android:textColor="@color/colorRed" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/iter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:text="Itinéraire"
+                android:textColor="@color/colorRed" />
+
+            <Button
+                android:id="@+id/buttonOk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:text="Passer un appel"
+                android:textColor="@color/colorRed" />
+        </LinearLayout>
 
     </LinearLayout>
 

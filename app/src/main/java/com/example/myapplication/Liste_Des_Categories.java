@@ -1,7 +1,9 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
@@ -19,6 +21,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -275,18 +280,60 @@ public class Liste_Des_Categories extends AppCompatActivity {
         alertDialog.show();
     }
 */
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_actionbar,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+      if(item.getItemId()==R.id.logout_apk)
+      {
+          new AlertDialog.Builder(this)
+                  .setMessage("Êtes-vous sûr de vouloir sortir ?")
+                  .setNegativeButton(android.R.string.no, null)
+                  .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {
+                          Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
+                          intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                          intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                          intCloseApp.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                          intCloseApp.addCategory(Intent.CATEGORY_HOME);
+                          intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                          startActivity(intCloseApp);
+                      }
+
+
+                  }).create().show();
+      }
+      return  true;
+    }
+
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
-                .setTitle("Really Exit?")
-                .setMessage("Are you sure you want to exit?")
+                .setMessage("Êtes-vous sûr de vouloir sortir ?")
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Liste_Des_Categories.super.onBackPressed();
+                        Liste_Des_Categories.this.finish();
+                        Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
+                        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        intCloseApp.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        intCloseApp.addCategory(Intent.CATEGORY_HOME);
+                        intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intCloseApp);
                     }
 
 
@@ -294,7 +341,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
     }
     private void GetApi()
     {
-        String JSON_URL = "http://92.222.83.184:9999/api/Categorie";
+        String JSON_URL = "http://51.83.72.59:9999/api/Categorie";
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
             @Override

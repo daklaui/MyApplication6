@@ -126,7 +126,7 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                         e.printStackTrace();
                     }
 
-                    String JSON_URL = "http://92.222.83.184:9999/api/Connect";
+                    String JSON_URL = "http://51.83.72.59:9999/api/Connect";
                     RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                     JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, JSON_URL, jsonObject,
                             new Response.Listener<JSONObject>() {
@@ -153,7 +153,7 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                                     else
                                     {
                                         loadingDialog.fermer();
-                                        Toast.makeText(LoginActivity.this, "M3erci de verifier votre login", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LoginActivity.this, "Merci de verifier votre login", Toast.LENGTH_SHORT).show();
                                         usernameEditText.setError("Merci de verifier votre login");
                                         passwordEditText.setError("Merci de verifier votre mot de passe" );
                                     }

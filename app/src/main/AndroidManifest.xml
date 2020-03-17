@@ -16,9 +16,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/dawini"
+        android:icon="@drawable/dawini_logo"
         android:label="Dawini"
-        android:roundIcon="@drawable/dawini"
+        android:roundIcon="@drawable/dawini_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">

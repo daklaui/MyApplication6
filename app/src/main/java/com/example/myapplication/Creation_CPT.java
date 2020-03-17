@@ -16,6 +16,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
@@ -49,6 +50,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -58,10 +60,12 @@ EditText Email,Password,PasswordConfor,Prenom,Nom,Numero_Cin,Date_Naissence,Nume
 TextView etap1,etap2,etap3;
 CheckBox H,F;
     String sexe="";
+    boolean test_;
     JSONObject jsonObject;
     int _code;
     private CustomViewPagerNoSwip viewPager;
      LoadingDialog loadingDialog;
+     HashMap<String, Boolean>stringHashMap;
     AuthenticationPagerAdapter pagerAdapter;
 
     @Override
@@ -78,6 +82,7 @@ CheckBox H,F;
         pagerAdapter.addFragmet(new Step2());
         pagerAdapter.addFragmet(new Step3());
         viewPager.setAdapter(pagerAdapter);
+        stringHashMap=new HashMap<String, Boolean>();
         loadingDialog = new LoadingDialog(Creation_CPT.this);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -133,12 +138,14 @@ CheckBox H,F;
 
         if(viewPager.getCurrentItem()==0)
         {
+
             Email=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.email);
             Password=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.password);
             PasswordConfor=pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.confirmpassword);
             String email=Email.getText().toString();
-            String password=Password.getText().toString();
-            String confirmpassword=PasswordConfor.getText().toString();
+            final String password=Password.getText().toString();
+            final String confirmpassword=PasswordConfor.getText().toString();
+          //  verife(email);
             if(email.isEmpty()|| password.isEmpty() || confirmpassword.isEmpty() )
             {
                // Toast.makeText(Creation_CPT.this,"merci de verifier",Toast.LENGTH_LONG).show();
@@ -149,20 +156,60 @@ CheckBox H,F;
             else if(!EMAIL_ADDRESS_PATTERN.matcher(email).matches()){
                 Email.setError("Veuillez saisir une adresse email valide. Par exemple prenom.nom@domaine.com!" );
             }
-            else  if(password.length()<6)
-            {
-                Password.setError("Veuillez saisir au moins 6 caractères" );
-            }
-            else  if(!password.equals(confirmpassword))
-            {
-                PasswordConfor.setError("Mot de passe ne correspondant pas!" );
-            }
 
             else
             {
 
-                viewPager.setCurrentItem(viewPager.getCurrentItem()+1);
+                try {
+loadingDialog.startLoadingDialog();
+                    RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                    String URL = "http://51.83.72.59:9999/api/Client?id="+email;
+                    // Request a string response from the provided URL.
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+loadingDialog.fermer();
+                                    if(response.charAt(1)=='b')
+                                    {
+                                        Email.setError("Adresse existe déjà!" );
+                                    }
+                                    else
+                                    {
+
+                                          if(password.length()<6)
+                                        {
+                                            Password.setError("Veuillez saisir au moins 6 caractères" );
+                                        }
+                                        else  if(!password.equals(confirmpassword))
+                                        {
+                                            PasswordConfor.setError("Mot de passe ne correspondant pas!" );
+                                        }
+
+                                        else
+                                        {
+                                            viewPager.setCurrentItem(viewPager.getCurrentItem()+1);
+                                        }
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.w("That didn't work!",error.getMessage());
+                        }
+                    });
+
+                    // Add the request to the RequestQueue.
+                    queue.add(stringRequest);
+                }
+                catch (Exception e){
+                    Log.w("That didn't work!",e.getMessage());
+                }
             }
+
+
+
+
         }
 
      else   if(viewPager.getCurrentItem()==1)
@@ -194,17 +241,50 @@ CheckBox H,F;
             {
                 Numero_Cin.setError("Veuillez saisir 8 chiffre" );
             }
+try{
+    loadingDialog.startLoadingDialog();
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String URL = "http://51.83.72.59:9999/api/Client?id="+cin;
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            loadingDialog.fermer();
+                            if(response.charAt(1)=='b')
+                            {
+                                Numero_Cin.setError("Numero cin existe déjà!" );
+                            }
+                            else
+                            {
+                                if (!H.isChecked() && !F.isChecked())
+                                {
+                                    H.setError("");
+                                    F.setError("");
+                                }
 
-            else if (!H.isChecked() && !F.isChecked())
-            {
-               H.setError("");
-               F.setError("");
-            }
+                                else
+                                {
+                                    viewPager.setCurrentItem(viewPager.getCurrentItem()+1);
+                                }
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.w("That didn't work!",error.getMessage());
+                }
+            });
 
-            else
-            {
-                viewPager.setCurrentItem(viewPager.getCurrentItem()+1);
-            }
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+        catch (Exception e){
+            Log.w("That didn't work!",e.getMessage());
+        }
+
+
+
         }
 
 
@@ -224,146 +304,253 @@ CheckBox H,F;
      Cp = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.cp);
      Adresse = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.adress);
 
-     String num_tel = Numero_Tel.getText().toString();
-     String cp = Cp.getText().toString();
+     final String num_tel = Numero_Tel.getText().toString();
+     final String cp = Cp.getText().toString();
      String adress = Adresse.getText().toString();
      if (num_tel.isEmpty() || cp.isEmpty() || adress.isEmpty()) {
          Numero_Tel.setError("Ce champ est obligatoire!");
          Cp.setError("Ce champ est obligatoire!");
          Adresse.setError("Ce champ est obligatoire!");
 
-         Toast.makeText(Creation_CPT.this, "merci de verifier", Toast.LENGTH_LONG).show();
      } else if (num_tel.length() < 8 || num_tel.length() > 8) {
          Numero_Tel.setError("Veuillez saisir 8 chiffre");
-     } else if (cp.length() < 4 || cp.length() > 4) {
-         Cp.setError("Veuillez saisir 4 chiffre");
-     } else {
-         if (InternetConnection()) {
+     }
 
-             if (H.isChecked())
-             {
-               sexe="H";
-             }
-             else if(F.isChecked())
-             {
-                 sexe="F";
-             }
-
-             /**********************************APELLE API*************************************************************/
-             btnValide.setEnabled(false);
-             loadingDialog.startLoadingDialog();
-    /***************************************************SENDMESSAGECONFIRMATION***************************************************************/
-              _code=SEND_MESSAGE(num_tel);
-             AlertDialog.Builder builder= new AlertDialog.Builder(Creation_CPT.this);
-             View mview=getLayoutInflater().inflate(R.layout.dialoge_confirme_code,null);
-             final EditText editText=mview.findViewById(R.id.editText);
-             Button confirme=mview.findViewById(R.id.confirm_button_inscription);
-             TextView autrecode=mview.findViewById(R.id.autrecode);
-
-             confirme.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     if(editText.getText().toString().isEmpty())
-                     {
-                         editText.setError("merci de taper un code");
-                     }
-                     else if (editText.getText().length()!=4)
-                     {
-                         editText.setError("code contient 4 chiffres");
-                     }
-                     else
-                     {
-                         if(Integer.parseInt(editText.getText().toString())==_code)
+     try {
+loadingDialog.startLoadingDialog();
+         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+         String URL = "http://51.83.72.59:9999/api/Client?id="+num_tel;
+         // Request a string response from the provided URL.
+         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                 new Response.Listener<String>() {
+                     @Override
+                     public void onResponse(String response) {
+loadingDialog.fermer();
+                         if(response.charAt(1)=='b')
                          {
-
-                             jsonObject= new JSONObject();
-                             try {
-                                 jsonObject.put("NOM_CLIENT", Nom.getText().toString());
-                                 jsonObject.put("PREN_CLIENT", Prenom.getText().toString());
-                                 jsonObject.put("CIN_CLIENT", Numero_Cin.getText().toString());
-                                 jsonObject.put("DATE_NAISS", Date_Naissence.getText().toString());
-                                 jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
-                                 jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
-                                 jsonObject.put("MDP_CLIENT", Password.getText().toString());
-                                 jsonObject.put("GENRE_CLIENT", sexe);
-
-                             } catch (JSONException e) {
-                                 e.printStackTrace();
-                                 loadingDialog.fermer();
-                             }
-
-
-                             Log.e("date",jsonObject.toString());
-
-
-                             String URL = "http://92.222.83.184:9999/api/Client";
-                             RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-                             JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
-                                     new Response.Listener<JSONObject>() {
-                                         @Override
-                                         public void onResponse(JSONObject response) {
-                                             startActivity(new Intent(Creation_CPT.this, LoginActivity.class));
-                                             loadingDialog.fermer();
-                                         }
-                                     },
-                                     new Response.ErrorListener() {
-
-                                         @Override
-                                         public void onErrorResponse(VolleyError error) {
-                                             Toast.makeText(Creation_CPT.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                             Log.e("Tableau",jsonObject.toString());
-                                             loadingDialog.fermer();
-                                         }
-                                     });
-                             requestQueue.add(objectRequest);
-
-
+                             Numero_Tel.setError("Numero existe déjà!" );
                          }
                          else
                          {
-                             editText.setError("merci de verifeir");
-                         }
-                     }
 
-                 }
-             });
+                             if (cp.length() < 4 || cp.length() > 4) {
+                                 Cp.setError("Veuillez saisir 4 chiffre");
+                             } else {
+                                 if (InternetConnection()) {
 
-             autrecode.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     _code=SEND_MESSAGE(Numero_Tel.getText().toString());
-                 }
-             });
-             builder.setView(mview);
-             AlertDialog dialog=builder.create();
-             loadingDialog.fermer();
-             dialog.show();
+                                     if (H.isChecked())
+                                     {
+                                         sexe="H";
+                                     }
+                                     else if(F.isChecked())
+                                     {
+                                         sexe="F";
+                                     }
 
-          dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                     /**********************************APELLE API*************************************************************/
+                                     btnValide.setEnabled(false);
+                                     loadingDialog.startLoadingDialog();
+                                     /***************************************************SENDMESSAGECONFIRMATION***************************************************************/
+                                     _code=SEND_MESSAGE(num_tel);
+                                     AlertDialog.Builder builder= new AlertDialog.Builder(Creation_CPT.this);
+                                     View mview=getLayoutInflater().inflate(R.layout.dialoge_confirme_code,null);
+                                     final EditText editText=mview.findViewById(R.id.editText);
+                                     Button confirme=mview.findViewById(R.id.confirm_button_inscription);
+                                     TextView autrecode=mview.findViewById(R.id.autrecode);
+
+                                     confirme.setOnClickListener(new View.OnClickListener() {
+                                         @Override
+                                         public void onClick(View v) {
+                                             if(editText.getText().toString().isEmpty())
+                                             {
+                                                 editText.setError("merci de taper un code");
+                                             }
+                                             else if (editText.getText().length()!=4)
+                                             {
+                                                 editText.setError("code contient 4 chiffres");
+                                             }
+                                             else
+                                             {
+                                                 if(Integer.parseInt(editText.getText().toString())==_code)
+                                                 {
+                                                     Toast.makeText(Creation_CPT.this,Date_Naissence.getText().toString(),Toast.LENGTH_LONG).show();
+                                                     loadingDialog.startLoadingDialog();
+                                                     jsonObject=null;
+                                                     jsonObject= new JSONObject();
+                                                     String date_invers=Date_Naissence.getText().toString().substring(6,10)+"-"+Date_Naissence.getText().toString().substring(3,5)+"-"+Date_Naissence.getText().toString().substring(0,2);
+                                                     try {
+                                                         jsonObject.put("NOM_CLIENT", Nom.getText().toString());
+                                                         jsonObject.put("PREN_CLIENT", Prenom.getText().toString());
+                                                         jsonObject.put("CIN_CLIENT", Numero_Cin.getText().toString());
+                                                         jsonObject.put("DATE_NAISS",date_invers);
+                                                         jsonObject.put("CODE_CP",Cp.getText().toString());
+                                                         jsonObject.put("NUM_TEL",Numero_Tel.getText().toString());
+                                                         jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
+                                                         jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
+                                                         jsonObject.put("MDP_CLIENT", Password.getText().toString());
+                                                         jsonObject.put("GENRE_CLIENT", sexe);
+
+                                                     } catch (JSONException e) {
+                                                         e.printStackTrace();
+                                                         loadingDialog.fermer();
+                                                     }
+
+
+
+
+                                                     Log.e("dateeee",jsonObject.toString());
+
+
+                                                     String URL = "http://51.83.72.59:9999/api/Client";
+                                                     RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                                                     JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
+                                                             new Response.Listener<JSONObject>() {
+                                                                 @Override
+                                                                 public void onResponse(JSONObject response) {
+
+                                                                     startActivity(new Intent(Creation_CPT.this, LoginActivity.class));
+                                                                     loadingDialog.fermer();
+                                                                 }
+                                                             },
+                                                             new Response.ErrorListener() {
+
+                                                                 @Override
+                                                                 public void onErrorResponse(VolleyError error) {
+                                                                     Toast.makeText(Creation_CPT.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                     Log.e("Tableau",jsonObject.toString());
+                                                                     loadingDialog.fermer();
+                                                                 }
+                                                             });
+                                                     requestQueue.add(objectRequest);
+
+
+                                                 }
+                                                 else
+                                                 {
+                                                     editText.setError("merci de verifeir");
+                                                 }
+                                             }
+
+                                         }
+                                     });
+                                     builder.setView(mview);
+                                     final AlertDialog dialog=builder.create();
+                                     loadingDialog.fermer();
+                                     dialog.show();
+
+                                     autrecode.setOnClickListener(new View.OnClickListener() {
+                                         @Override
+                                         public void onClick(View v) {
+                                             final AlertDialog.Builder buildert= new AlertDialog.Builder(Creation_CPT.this);
+                                             buildert.setMessage("Votre code de confirmation par sms a été envoyé,\n merci de patienter quelques instants s'il vous plait ");
+                                             buildert.create();
+                                             final AlertDialog alertDialog= buildert.show();
+                                             Handler handler  = new Handler();
+                                             Runnable runnable = new Runnable() {
+                                                 @Override
+                                                 public void run() {
+
+                                                     if (alertDialog.isShowing()) {
+                                                         alertDialog.dismiss();
+                                                         _code=SEND_MESSAGE(Numero_Tel.getText().toString());
+                                                         dialog.show();
+                                                     }
+                                                 }
+                                             };
+                                             handler.postDelayed(runnable, 1000);
+
+
+
+                                         }
+                                     });
+
+                                     dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                         @Override
+                                         public void onDismiss(DialogInterface dialogs) {
+                                             new androidx.appcompat.app.AlertDialog.Builder(Creation_CPT.this)
+                                                     .setMessage("Êtes-vous sûr de fermer cette fenêtre?,\n si oui vous avez perdu votre code de confirmation , \n merci de patienter quelques instants s'il vous plait ")
+                                                     .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                                         @Override
+                                                         public void onClick(DialogInterface dialodg, int which) {
+                                                             dialog.show();
+                                                         }
+                                                     })
+                                                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                                         @Override
+                                                         public void onClick(DialogInterface dialog, int which) {
+                                                             new androidx.appcompat.app.AlertDialog.Builder(Creation_CPT.this)
+                                                                     .setMessage("Vous avez perdu votre code de confirmation ")
+                                                                     .setPositiveButton("ok", null).create().show();
+                                                             btnValide.setEnabled(true);
+
+                                                         }
+
+
+                                                     }).create().show();
+
+                                         }
+                                     });
+         /* dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
               @Override
-              public void onDismiss(DialogInterface dialog) {
-                  btnValide.setEnabled(true);
+              public void onCancel(DialogInterface dialogg) {
+                  new androidx.appcompat.app.AlertDialog.Builder(Creation_CPT.this)
+                          .setMessage("Êtes-vous sûr de fermer cette fenêtre?,\n si oui vous avez perdu votre code de confirmation , \n merci de patienter quelques instants s'il vous plait ")
+                          .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                              @Override
+                              public void onClick(DialogInterface dialogt, int which) {
+                                  dialog.show();
+                              }
+                          })
+                          .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                              @Override
+                              public void onClick(DialogInterface dialog, int which) {
+                                  new androidx.appcompat.app.AlertDialog.Builder(Creation_CPT.this)
+                                          .setMessage("Vous avez perdu votre code de confirmation ")
+                                          .setPositiveButton("ok", null).create().show();
+                                  btnValide.setEnabled(true);
+
+                              }
+
+
+                          }).create().show();
               }
-          });
-          dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-              @Override
-              public void onCancel(DialogInterface dialog) {
-                  btnValide.setEnabled(true);
-              }
-          });
-             /***********************************************************************************************************************************************/
+          });*/
+                                     /***********************************************************************************************************************************************/
        /*
 
 
              /************************************************************************************************/
-         }
-           else
-             {
-                 loadingDialog.fermer();
-                 Toast.makeText(Creation_CPT.this, R.string.error_connection_internet, Toast.LENGTH_SHORT).show();
-             }
+                                 }
+                                 else
+                                 {
+                                     loadingDialog.fermer();
+                                     Toast.makeText(Creation_CPT.this, R.string.error_connection_internet, Toast.LENGTH_SHORT).show();
+                                 }
 
-         }
+                             }
+
+
+                         }
+
+                         // Toast.makeText(Creation_CPT.this,"1"+String.valueOf(test_),Toast.LENGTH_SHORT).show();
+                     }
+                 }, new Response.ErrorListener() {
+             @Override
+             public void onErrorResponse(VolleyError error) {
+                 Log.w("That didn't work!",error.getMessage());
+             }
+         });
+
+         // Add the request to the RequestQueue.
+         queue.add(stringRequest);
+     }
+     catch (Exception e){
+         Log.w("That didn't work!",e.getMessage());
+     }
+
+
      }
      /*******************************************************************************************************************/
 
@@ -448,6 +635,60 @@ CheckBox H,F;
         int randomNumber = random.nextInt(9999-1000) + 1000;
 return randomNumber;
     }
+
+    public void verife(String id)
+    {
+        //loadingDialog.startLoadingDialog();
+
+        try {
+
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String URL = "http://51.83.72.59:9999/api/Client?id="+id;
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                            if(response.charAt(1)=='b')
+                            {
+                               // test_=true;
+                                stringHashMap.put("isExiste",true);
+                               // Toast.makeText(Creation_CPT.this,String.valueOf(response.charAt(1)),Toast.LENGTH_LONG).show();
+
+                            }
+                            else
+                            {
+
+                                test_=false;
+                                stringHashMap.put("isExiste",false);
+                            }
+
+                           // Toast.makeText(Creation_CPT.this,"1"+String.valueOf(test_),Toast.LENGTH_SHORT).show();
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    test_=false;
+
+                    stringHashMap.put("isExiste",false);
+                    Log.w("That didn't work!",error.getMessage());
+                }
+            });
+
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+        catch (Exception e){
+            Log.w("That didn't work!",e.getMessage());
+        }
+        Log.w("hashmapmoataz!",String.valueOf(stringHashMap));
+        Toast.makeText(Creation_CPT.this,"2"+String.valueOf(stringHashMap.get("isExiste")),Toast.LENGTH_SHORT).show();
+//        loadingDialog.fermer();
+        //return test_;
+    }
+
+
 
 public String GETDATESYS()
 {
@@ -546,6 +787,4 @@ class AuthenticationPagerAdapter extends FragmentPagerAdapter {
         fragmentList.add(fragment);
     }
 }
-
-
 

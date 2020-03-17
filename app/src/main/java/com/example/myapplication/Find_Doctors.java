@@ -1,8 +1,12 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -11,6 +15,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,9 +26,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,11 +50,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.ui.BubbleIconFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,7 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback {
+public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private static final int REQUEST_LOCATION = 1;
@@ -73,6 +86,8 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         setContentView(R.layout.activity_find__doctors);
+        Toolbar toolbar=findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -82,6 +97,38 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_actionbar,menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.logout_apk)
+        {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setMessage("Êtes-vous sûr de vouloir sortir ?")
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           Find_Doctors.this.finish();
+                            Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
+                            intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            intCloseApp.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            intCloseApp.addCategory(Intent.CATEGORY_HOME);
+                            intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intCloseApp);
+                        }
+
+
+                    }).create().show();
+        }
+        return  true;
+    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -93,14 +140,12 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
             OnGPS();
         } else {
             circle();
-            LatLng sydney = new LatLng(getLocation()[0], getLocation()[1]);
-            LatLng sydney2 = new LatLng(36.6486671,10.5879552);
+            final LatLng sydney = new LatLng(getLocation()[0], getLocation()[1]);
 
 
             mMap.addMarker(new MarkerOptions().position(sydney).title("My Position"));
-          //  mMap.addMarker(new MarkerOptions().position(sydney2).title("Beni khaled").snippet("distence = "+result[0]));
 
-            String JSON_URL = "http://92.222.83.184:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
+            String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
             final String adress=getAdresseName();
              final HashMap<Marker, Doctor> markerIdMapping = new HashMap<>();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -127,7 +172,8 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
                               //  Toast.makeText(Find_Doctors.this,adress,Toast.LENGTH_LONG).show();
    if(result[0]<=20000) {
-       markerIdMapping.put(mMap.addMarker(new MarkerOptions().position(getLocationFromAddress(Find_Doctors.this, jsonObject.getString("ADRESSE_DOCTOR"))).title(doctor.getNom()+" "+doctor.getPrenom())), doctor);
+
+       markerIdMapping.put(mMap.addMarker(new MarkerOptions().position(getLocationFromAddress(Find_Doctors.this, jsonObject.getString("ADRESSE_DOCTOR"))).icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(doctor.getNom()+" "+doctor.getPrenom())))), doctor);
    }
 
                            // }
@@ -152,16 +198,27 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
             requestQueue.add(jsonArrayRequest);
 
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(sydney2,15.65f));
+
+
+
+
+
+
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(sydney,13.65f));
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(final Marker marker) {
                     try {
-                        Doctor dc = markerIdMapping.get(marker);
+                        final Doctor dc = markerIdMapping.get(marker);
+
+
                         AlertDialog.Builder builder = new AlertDialog.Builder(Find_Doctors.this);
                         View mview = getLayoutInflater().inflate(R.layout.markerdetaille, null);
                         final TextView textView = mview.findViewById(R.id.Nom_Doctor);
                         Button confirme = mview.findViewById(R.id.buttonOk);
+                        Button iter = mview.findViewById(R.id.iter);
+
                         TextView num_tel = mview.findViewById(R.id.Num_Tel);
                         TextView sexe = mview.findViewById(R.id.Sexe2);
                         textView.setText("Nom et Prenom : " + dc.getNom() + " " + dc.getPrenom());
@@ -188,7 +245,7 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
                                 }
 
-                                String URL = "http://92.222.83.184:9999/api/values";
+                                String URL = "http://51.83.72.59:9999/api/values";
                                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                                 JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
                                         new Response.Listener<JSONObject>() {
@@ -199,7 +256,7 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
                                                         Log.e("MoatazMessage", response.getString("results"));
                                                         boolean isNumber = false;
                                                         try {
-                                                            int x = Integer.parseInt(marker.getSnippet());
+                                                            int x = Integer.parseInt(dc.getNumeroTel());
                                                             isNumber = true;
                                                         } catch (Exception e) {
                                                             isNumber = false;
@@ -207,14 +264,14 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
                                                         if (isNumber) {
 
                                                             if (ContextCompat.checkSelfPermission(Find_Doctors.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                                                                Log.e("MoatazMessage", marker.getSnippet());
+                                                             //   Log.e("MoatazMessage", marker.getSnippet());
                                                                 ActivityCompat.requestPermissions(Find_Doctors.this, new String[]{android.Manifest.permission.CALL_PHONE}, PHONE_CALL_REQUEST);
                                                                 //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
                                                                 //startActivity(intent);
                                                             } else {
 
-                                                                Log.e("MoatazMessage", marker.getSnippet());
-                                                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
+                                                               // Log.e("MoatazMessage", marker.getSnippet());
+                                                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + dc.getNumeroTel()));
                                                                 startActivity(intent);
 
 
@@ -241,7 +298,15 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
                             }
                         });
 
-
+                        iter.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Directions
+                                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(
+                                        "http://maps.google.com/maps?saddr="+sydney.latitude+","+sydney.longitude+"&daddr="+marker.getPosition().latitude+","+marker.getPosition().longitude));
+                                startActivity(intent);
+                            }
+                        });
 
 
 
@@ -274,6 +339,24 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
+    private Bitmap createStoreMarker(String name) {
+        View markerLayout = getLayoutInflater().inflate(R.layout.stroe_marker_layout, null);
+
+        ImageView markerImage = (ImageView) markerLayout.findViewById(R.id.marker_image);
+        TextView markerRating = (TextView) markerLayout.findViewById(R.id.marker_text);
+        markerImage.setImageResource(R.drawable.doctor);
+        markerRating.setText(name);
+
+        markerLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        markerLayout.layout(0, 0, markerLayout.getMeasuredWidth(), markerLayout.getMeasuredHeight());
+
+        final Bitmap bitmap = Bitmap.createBitmap(markerLayout.getMeasuredWidth(), markerLayout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        markerLayout.draw(canvas);
+        return bitmap;
+    }
+
     public void circle()
     {
         double radiusInMeters = 50.0;
@@ -420,12 +503,12 @@ public class Find_Doctors extends FragmentActivity implements OnMapReadyCallback
 
         final AlertDialog.Builder builder= new AlertDialog.Builder(Find_Doctors.this);
 
-        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setMessage("Activer GPS").setCancelable(false).setPositiveButton("OUI", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
-        }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("NON", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
