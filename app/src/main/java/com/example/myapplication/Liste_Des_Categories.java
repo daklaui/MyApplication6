@@ -90,13 +90,19 @@ public class Liste_Des_Categories extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 //    Toast.makeText(Liste_Des_Categories.this,adapter.getItem(position).getTitre(),Toast.LENGTH_LONG).show();
-
-                //GPS is already On then
-                // Toast.makeText(Liste_Des_Categories.this,   mypos.getText().length(),Toast.LENGTH_LONG).show();
-                Intent myIntent = new Intent(Liste_Des_Categories.this, Find_Doctors.class);
-                myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
-                startActivity(myIntent);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    //Write Function To enable gps
+                    OnGPS();
+                }
+                else {
+                    //GPS is already On then
+                    // Toast.makeText(Liste_Des_Categories.this,   mypos.getText().length(),Toast.LENGTH_LONG).show();
+                    Intent myIntent = new Intent(Liste_Des_Categories.this, Find_Doctors.class);
+                    myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
+                    startActivity(myIntent);
+                }
                /* if (mypos.getText().length() != 0) {
                     Intent myIntent = new Intent(Liste_Des_Categories.this, Find_Doctors.class);
                  //   myIntent.putExtra("key_search", adapter.getItem(position).getTitre());
@@ -260,16 +266,24 @@ public class Liste_Des_Categories extends AppCompatActivity {
 
 
 
+
+*/
+
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+    }
     private void OnGPS() {
 
         final AlertDialog.Builder builder= new AlertDialog.Builder(this);
 
-        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setMessage("Ouvrir GPS").setCancelable(false).setPositiveButton("OUI", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             }
-        }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("NON", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -279,11 +293,6 @@ public class Liste_Des_Categories extends AppCompatActivity {
         final AlertDialog alertDialog=builder.create();
         alertDialog.show();
     }
-*/
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();

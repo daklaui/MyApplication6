@@ -61,33 +61,6 @@
                 app:met_floatingLabel="highlight"
                 app:met_primaryColor="#757575" />
 
-            <com.rengwuxian.materialedittext.MaterialEditText
-                android:id="@+id/cp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Code postal"
-                android:inputType="number"
-                android:textColorHint="@color/gen_black"
-                app:met_baseColor="#212121"
-                app:met_clearButton="true"
-                app:met_errorColor="#F44336"
-                app:met_floatingLabel="highlight"
-                app:met_primaryColor="#757575"  />
-
-
-            <com.rengwuxian.materialedittext.MaterialEditText
-                android:id="@+id/adress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Votre Adresse"
-                android:inputType="textPersonName"
-                android:textColorHint="@color/gen_black"
-                app:met_baseColor="#212121"
-                app:met_clearButton="true"
-                app:met_errorColor="#F44336"
-                app:met_floatingLabel="highlight"
-                app:met_primaryColor="#757575"  />
-
 
         </LinearLayout>
 

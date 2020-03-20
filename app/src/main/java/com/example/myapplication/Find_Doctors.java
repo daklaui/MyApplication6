@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -21,8 +22,10 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -46,6 +49,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.myapplication.Adapter.DoctorAdpater;
 import com.example.myapplication.data.model.Doctor;
 import com.example.myapplication.ui.login.LoginActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -56,6 +61,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+//import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.ui.BubbleIconFactory;
 
 import org.json.JSONArray;
@@ -72,29 +80,59 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private static final int REQUEST_LOCATION = 1;
-    private static final int PHONE_CALL_REQUEST=0;
+    private static final int PHONE_CALL_REQUEST = 0;
+    Location curLocation;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private static final int REQUEST_CODE= 101;
     LocationManager locationManager;
-    boolean IsSave=false;
+    boolean IsSave = false;
     Circle mCircle;
     JSONObject jsonObject;
-    float Lait,Long;
+    float Lait, Long;
     SharedPreferences sharedPreferences;
+LocationListener locationListener;
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ActivityCompat.requestPermissions(this, new String[]
-                {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         setContentView(R.layout.activity_find__doctors);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
+
         Toolbar toolbar=findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
+        fetchlaslocation();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
 
 
     }
+private  void fetchlaslocation()
+{
+    if (ActivityCompat.checkSelfPermission(Find_Doctors.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Find_Doctors.this,
+            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(this, new String[]
+                {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        return ;
+    }
+    Task<Location> task=fusedLocationProviderClient.getLastLocation();
+    task.addOnSuccessListener(new OnSuccessListener<Location>() {
+        @Override
+        public void onSuccess(Location location) {
+            if(location!=null)
+            {
+                curLocation=location;
+                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.map);
+                mapFragment.getMapAsync(Find_Doctors.this);
+            }
+        }
+    });
+
+}
+
+
 
 
     @Override
@@ -134,19 +172,16 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         Intent myIntent = getIntent();
         // Add a marker in Sydney and move the camera
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            //Write Function To enable gps
-            OnGPS();
-        } else {
+
+
             circle();
-            final LatLng sydney = new LatLng(getLocation()[0], getLocation()[1]);
+            final LatLng sydney = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
 
 
             mMap.addMarker(new MarkerOptions().position(sydney).title("My Position"));
 
             String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
-            final String adress=getAdresseName();
+           // final String adress=getAdresseName();
              final HashMap<Marker, Doctor> markerIdMapping = new HashMap<>();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
@@ -163,12 +198,16 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
                                 float[]result= new float[10];
                                 doctor.setId(Integer.parseInt(jsonObject.getString("ID_DOCTOR")));
                                 doctor.setNom(jsonObject.getString("NOM_DOCTOR"));
-                            doctor.setPrenom(jsonObject.getString("PREN_DOCTOR"));
-                          doctor.setGen(jsonObject.getString("GENRE_DOCTOR"));
+                                doctor.setPrenom(jsonObject.getString("PREN_DOCTOR"));
+                                doctor.setGen(jsonObject.getString("GENRE_DOCTOR"));
                                 doctor.setNumeroTel(jsonObject.getString("NUM_TEL_DOCTOR"));
+                                doctor.setAdress(jsonObject.getString("CP_DOCTOR")+" "+jsonObject.getString("VILLE_DOCTOR")+" "+jsonObject.getString("ADRESSE_DOCTOR"));
+                                doctor.setDescription(jsonObject.getString("DESCRIPTION"));
+                                doctor.setSpecialite(jsonObject.getString("ID_CATEGORIE_DOCTOR"));
+                                doctor.setFacebook(jsonObject.getString("URL_FACEBOOK"));
                                 doctors.add(doctor);
-                                Log.e("POSITIONMOATAZ",jsonObject.getString("ADRESSE_DOCTOR"));
-                                Location.distanceBetween(getLocation()[0],getLocation()[1],getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).latitude,getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).longitude,result);
+                              //  Log.e("POSITIONMOATAZ",jsonObject.getString("ADRESSE_DOCTOR"));
+                                Location.distanceBetween(curLocation.getLatitude(),curLocation.getLongitude(),getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).latitude,getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).longitude,result);
 
                               //  Toast.makeText(Find_Doctors.this,adress,Toast.LENGTH_LONG).show();
    if(result[0]<=20000) {
@@ -216,12 +255,27 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
                         AlertDialog.Builder builder = new AlertDialog.Builder(Find_Doctors.this);
                         View mview = getLayoutInflater().inflate(R.layout.markerdetaille, null);
                         final TextView textView = mview.findViewById(R.id.Nom_Doctor);
+                        final TextView spec = mview.findViewById(R.id.Specialite);
+                        final TextView Desc = mview.findViewById(R.id.Desc);
+                        final TextView facebook = mview.findViewById(R.id.facebook);
+
                         Button confirme = mview.findViewById(R.id.buttonOk);
                         Button iter = mview.findViewById(R.id.iter);
-
                         TextView num_tel = mview.findViewById(R.id.Num_Tel);
                         TextView sexe = mview.findViewById(R.id.Sexe2);
                         textView.setText("Nom et Prenom : " + dc.getNom() + " " + dc.getPrenom());
+                        spec.setText(dc.getSpecialite());
+                        Desc.setText(dc.getDescription());
+                        if(dc.getFacebook().length()>0 && dc.getFacebook()!=null&& dc.getFacebook()!="null"&& !dc.getFacebook().contains("null"))
+                        {
+                            facebook.setText(dc.getFacebook());
+                        }
+                        else
+                        {
+                            facebook.setVisibility(View.GONE);
+                        }
+
+
                         num_tel.setText("Numero de téléphone : " + dc.getNumeroTel());
                         sexe.setText("Sexe : " + dc.getGen());
                         builder.setView(mview);
@@ -238,6 +292,7 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
                                     jsonObject.put("ID_CLIENT_DEMANDE", sharedPreferences.getInt("Id_client", 0));
                                     Doctor dc = markerIdMapping.get(marker);
                                     jsonObject.put("ID_DOCTOR_DEMANDE", dc.getId());
+                                    jsonObject.put("ADRESSE_CLIENT_GPS", getAdresseName());
 
 
                                 } catch (JSONException e) {
@@ -271,6 +326,32 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
                                                             } else {
 
                                                                // Log.e("MoatazMessage", marker.getSnippet());
+                                                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + dc.getNumeroTel()));
+                                                                startActivity(intent);
+
+
+                                                            }
+                                                        }
+                                                    }
+                                                    else if(response.getString("results").contains("demi_bien"))
+                                                    {
+                                                        boolean isNumber = false;
+                                                        try {
+                                                            int x = Integer.parseInt(dc.getNumeroTel());
+                                                            isNumber = true;
+                                                        } catch (Exception e) {
+                                                            isNumber = false;
+                                                        }
+                                                        if (isNumber) {
+
+                                                            if (ContextCompat.checkSelfPermission(Find_Doctors.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                                                //   Log.e("MoatazMessage", marker.getSnippet());
+                                                                ActivityCompat.requestPermissions(Find_Doctors.this, new String[]{android.Manifest.permission.CALL_PHONE}, PHONE_CALL_REQUEST);
+                                                                //Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + marker.getSnippet()));
+                                                                //startActivity(intent);
+                                                            } else {
+
+                                                                // Log.e("MoatazMessage", marker.getSnippet());
                                                                 Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + dc.getNumeroTel()));
                                                                 startActivity(intent);
 
@@ -333,11 +414,24 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
             });
-        }
+
 
         /**********************************/
 
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode)
+        {
+            case REQUEST_CODE:
+                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
+                {
+                    fetchlaslocation();
+                }
+                break;
+        }
     }
 
     private Bitmap createStoreMarker(String name) {
@@ -364,13 +458,55 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
         int shadeColor = 0x44ff0000; //opaque red fill
 
         mCircle = mMap.addCircle (new CircleOptions()
-                .center(new LatLng(getLocation()[0], getLocation()[1]))
+                .center(new LatLng(curLocation.getLatitude(),curLocation.getLongitude()))
                 .radius(20000)
                 .fillColor(shadeColor)
                 .strokeColor(strokeColor)
                 .strokeWidth(1));
     }
+
+/*
     private double[] getLocation() {
+
+        final double aDouble[] = new double[2];
+        locationListener= new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                aDouble[0]=location.getLatitude();
+                aDouble[1]=location.getLongitude();
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        if (ActivityCompat.checkSelfPermission(Find_Doctors.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Find_Doctors.this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]
+                    {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            return  null;
+        }
+        else
+        {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        }
+
+
+
+        return  aDouble;
+    }
+    /*private double[] getLocation() {
 
         //Check Permissions again
         double aDouble[] = new double[2];
@@ -466,8 +602,8 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             else {
-                double lat = 36.6338484; //LocationGps.getLatitude();
-                double longi =10.570989; //LocationGps.getLongitude();
+                double lat = LocationGps.getLatitude();
+                double longi =LocationGps.getLongitude();
                 // latitude=String.valueOf(lat);
                 // longitude=String.valueOf(longi);
                 aDouble[0]=lat;
@@ -499,28 +635,31 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    private void OnGPS() {
+*/
 
-        final AlertDialog.Builder builder= new AlertDialog.Builder(Find_Doctors.this);
+    private String getAdresseName() {
+        String Adresse;
 
-        builder.setMessage("Activer GPS").setCancelable(false).setPositiveButton("OUI", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-            }
-        }).setNegativeButton("NON", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        try {
+            Geocoder geocoder = new Geocoder(
+                    Find_Doctors.this, Locale
+                    .getDefault());
+            List<Address> addresses;
+            addresses = geocoder.getFromLocation(curLocation.getLatitude(),curLocation.getLongitude(), 1);
+            Log.v("log_tag", "addresses+)_+++" + addresses);
+            return addresses.get(0).getAddressLine(0);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+return  "";
 
-                dialog.cancel();
-            }
-        });
-        final AlertDialog alertDialog=builder.create();
-        alertDialog.show();
+
+        }
+
     }
 
 
-
+    /*
     private String getAdresseName() {
 
         //Check Permissions again
@@ -614,8 +753,8 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             else {
-                double lat = 36.6338484; //LocationGps.getLatitude();
-                double longi =10.570989; //LocationGps.getLongitude();
+                double lat = LocationGps.getLatitude();
+                double longi =LocationGps.getLongitude();
                 // latitude=String.valueOf(lat);
                 // longitude=String.valueOf(longi);
                 String CityName = "";
@@ -641,7 +780,7 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
-    }
+    }*/
 
     public LatLng getLocationFromAddress(Context context,String strAddress) {
 

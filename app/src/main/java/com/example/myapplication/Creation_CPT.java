@@ -301,16 +301,16 @@ try{
     /************************************************************************************************************/
  if(viewPager.getCurrentItem()==2) {
      Numero_Tel = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.num_tel);
-     Cp = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.cp);
-     Adresse = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.adress);
+     //Cp = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.cp);
+    // Adresse = pagerAdapter.getItem(viewPager.getCurrentItem()).getView().findViewById(R.id.adress);
 
      final String num_tel = Numero_Tel.getText().toString();
-     final String cp = Cp.getText().toString();
-     String adress = Adresse.getText().toString();
-     if (num_tel.isEmpty() || cp.isEmpty() || adress.isEmpty()) {
+    // final String cp = Cp.getText().toString();
+   //  String adress = Adresse.getText().toString();
+     if (num_tel.isEmpty() ) {
          Numero_Tel.setError("Ce champ est obligatoire!");
-         Cp.setError("Ce champ est obligatoire!");
-         Adresse.setError("Ce champ est obligatoire!");
+      //   Cp.setError("Ce champ est obligatoire!");
+       //  Adresse.setError("Ce champ est obligatoire!");
 
      } else if (num_tel.length() < 8 || num_tel.length() > 8) {
          Numero_Tel.setError("Veuillez saisir 8 chiffre");
@@ -333,9 +333,7 @@ loadingDialog.fermer();
                          else
                          {
 
-                             if (cp.length() < 4 || cp.length() > 4) {
-                                 Cp.setError("Veuillez saisir 4 chiffre");
-                             } else {
+
                                  if (InternetConnection()) {
 
                                      if (H.isChecked())
@@ -383,9 +381,9 @@ loadingDialog.fermer();
                                                          jsonObject.put("PREN_CLIENT", Prenom.getText().toString());
                                                          jsonObject.put("CIN_CLIENT", Numero_Cin.getText().toString());
                                                          jsonObject.put("DATE_NAISS",date_invers);
-                                                         jsonObject.put("CODE_CP",Cp.getText().toString());
+                                                        // jsonObject.put("CODE_CP",Cp.getText().toString());
                                                          jsonObject.put("NUM_TEL",Numero_Tel.getText().toString());
-                                                         jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
+                                                         //jsonObject.put("ADRESS_CLIENT", Cp.getText().toString()+" "+ Adresse.getText().toString());
                                                          jsonObject.put("EMAIL_CLIENT", Email.getText().toString());
                                                          jsonObject.put("MDP_CLIENT", Password.getText().toString());
                                                          jsonObject.put("GENRE_CLIENT", sexe);
@@ -529,7 +527,7 @@ loadingDialog.fermer();
                                      Toast.makeText(Creation_CPT.this, R.string.error_connection_internet, Toast.LENGTH_SHORT).show();
                                  }
 
-                             }
+
 
 
                          }
