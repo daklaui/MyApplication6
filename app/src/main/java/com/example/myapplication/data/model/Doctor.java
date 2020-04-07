@@ -1,11 +1,55 @@
 package com.example.myapplication.data.model;
 
-public class Doctor {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class Doctor  implements Serializable {
 
     public String nom ;
     public String prenom ;
     public String specialite ;
     public String description ;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String image ;
+    public String getHoraire() {
+        return Horaire;
+    }
+
+    public void setHoraire(String horaire) {
+        Horaire = horaire;
+    }
+
+    String Horaire;
+
+
+    public String getCp() {
+        return cp;
+    }
+
+    public void setCp(String cp) {
+        this.cp = cp;
+    }
+
+    public String getVille() {
+        return ville;
+    }
+
+    public void setVille(String ville) {
+        this.ville = ville;
+    }
+
+    public String cp ;
+    public String ville;
 
     public String getSpecialite() {
         return specialite;
@@ -99,4 +143,6 @@ public class Doctor {
     public Doctor() {
 
     }
+
+
 }

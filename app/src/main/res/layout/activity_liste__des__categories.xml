@@ -14,12 +14,6 @@
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar"></include>
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="match_parent"
-            android:layout_height="266dp"
-            android:background="#F44336"
-            app:srcCompat="@drawable/dawini" />
 
         <ListView
             android:id="@+id/listcategories"

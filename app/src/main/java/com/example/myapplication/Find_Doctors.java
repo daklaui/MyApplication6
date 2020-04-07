@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,7 +18,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -27,15 +26,14 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,9 +44,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.myapplication.Adapter.DoctorAdpater;
 import com.example.myapplication.data.model.Doctor;
-import com.example.myapplication.ui.login.LoginActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -64,7 +60,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.maps.android.ui.BubbleIconFactory;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,6 +87,7 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
     float Lait, Long;
     SharedPreferences sharedPreferences;
 LocationListener locationListener;
+    Intent myIntent1;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +96,12 @@ LocationListener locationListener;
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
-
+        myIntent1 = getIntent();
         Toolbar toolbar=findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         fetchlaslocation();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
@@ -132,13 +132,17 @@ private  void fetchlaslocation()
 
 }
 
-
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_actionbar,menu);
+        menuInflater.inflate(R.menu.menu_actionbarfindmap,menu);
         return true;
     }
     @Override
@@ -152,7 +156,7 @@ private  void fetchlaslocation()
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                           Find_Doctors.this.finish();
+
                             Intent intCloseApp = new Intent(Intent.ACTION_MAIN);
                             intCloseApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intCloseApp.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -160,17 +164,36 @@ private  void fetchlaslocation()
                             intCloseApp.addCategory(Intent.CATEGORY_HOME);
                             intCloseApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intCloseApp);
+                            finishAffinity();
+                            System.exit(0);
                         }
 
 
                     }).create().show();
         }
+        else
+        {
+            finish();
+            /*Intent myIntent = new Intent(Find_Doctors.this, FindByPosition.class);
+            myIntent.putExtra("Catego",  myIntent1.getStringExtra("key_search"));
+            startActivity(myIntent);*/
+            onBackPressed();
+
+        }
+
+
         return  true;
+
+
     }
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        Intent myIntent = getIntent();
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+
         // Add a marker in Sydney and move the camera
 
 
@@ -178,9 +201,9 @@ private  void fetchlaslocation()
             final LatLng sydney = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
 
 
-            mMap.addMarker(new MarkerOptions().position(sydney).title("My Position"));
+            mMap.addMarker(new MarkerOptions().position(sydney).title("Ma Position"));
 
-            String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
+            String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent1.getStringExtra("key_search");
            // final String adress=getAdresseName();
              final HashMap<Marker, Doctor> markerIdMapping = new HashMap<>();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -188,42 +211,38 @@ private  void fetchlaslocation()
                 @Override
                 public void onResponse(JSONArray response) {
                     ArrayList<Doctor> doctors = new ArrayList<>();
-                    // Toast.makeText(Liste_Des_Doctors.this,adress,Toast.LENGTH_LONG).show();
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             JSONObject jsonObject = response.getJSONObject(i);
-                            //  Toast.makeText(Liste_Des_Doctors.this,jsonObject.getString("VILLE_DOCTOR"),Toast.LENGTH_LONG).show();
-                          //  if(adress.toLowerCase().contains(jsonObject.getString("VILLE_DOCTOR").toLowerCase())) {
                                 Doctor doctor = new Doctor();
                                 float[]result= new float[10];
-                                doctor.setId(Integer.parseInt(jsonObject.getString("ID_DOCTOR")));
-                                doctor.setNom(jsonObject.getString("NOM_DOCTOR"));
-                                doctor.setPrenom(jsonObject.getString("PREN_DOCTOR"));
-                                doctor.setGen(jsonObject.getString("GENRE_DOCTOR"));
-                                doctor.setNumeroTel(jsonObject.getString("NUM_TEL_DOCTOR"));
-                                doctor.setAdress(jsonObject.getString("CP_DOCTOR")+" "+jsonObject.getString("VILLE_DOCTOR")+" "+jsonObject.getString("ADRESSE_DOCTOR"));
-                                doctor.setDescription(jsonObject.getString("DESCRIPTION"));
-                                doctor.setSpecialite(jsonObject.getString("ID_CATEGORIE_DOCTOR"));
-                                doctor.setFacebook(jsonObject.getString("URL_FACEBOOK"));
+                            doctor.setId(Integer.parseInt(jsonObject.getString("ID_DOCTOR")));
+                            doctor.setNom(jsonObject.getString("NOM_DOCTOR"));
+                            doctor.setPrenom(jsonObject.getString("PREN_DOCTOR"));
+                            doctor.setGen(jsonObject.getString("GENRE_DOCTOR"));
+                            doctor.setNumeroTel(jsonObject.getString("NUM_TEL_DOCTOR"));
+                            doctor.setAdress(jsonObject.getString("ADRESSE_DOCTOR"));
+                            doctor.setDescription(jsonObject.getString("DESCRIPTION"));
+                            doctor.setSpecialite(jsonObject.getString("ID_CATEGORIE_DOCTOR"));
+                            doctor.setFacebook(jsonObject.getString("URL_FACEBOOK"));
+                            doctor.setCp(jsonObject.getString("CP_DOCTOR"));
+                            doctor.setVille(jsonObject.getString("VILLE_DOCTOR"));
+                            doctor.setImage(jsonObject.getString("IMAGE"));
+                            doctor.setHoraire("de " +jsonObject.getString("DAY_DEBUT")+" au "+jsonObject.getString("DAY_FIn")+" : de "+jsonObject.getString("HORAIRE_DEBUT")+" a "+jsonObject.getString("HORAIRE_FIN"));
                                 doctors.add(doctor);
-                              //  Log.e("POSITIONMOATAZ",jsonObject.getString("ADRESSE_DOCTOR"));
                                 Location.distanceBetween(curLocation.getLatitude(),curLocation.getLongitude(),getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).latitude,getLocationFromAddress(Find_Doctors.this,jsonObject.getString("ADRESSE_DOCTOR")).longitude,result);
 
-                              //  Toast.makeText(Find_Doctors.this,adress,Toast.LENGTH_LONG).show();
    if(result[0]<=20000) {
 
        markerIdMapping.put(mMap.addMarker(new MarkerOptions().position(getLocationFromAddress(Find_Doctors.this, jsonObject.getString("ADRESSE_DOCTOR"))).icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(doctor.getNom()+" "+doctor.getPrenom())))), doctor);
    }
 
-                           // }
                         } catch (JSONException e) {
                             e.printStackTrace();
 
                         }
                     }
                     Log.e("Dec", String.valueOf(doctors.size()));
-                    // adapter = new DoctorAdpater(Liste_Des_Doctors.this, doctors);
-                    //  listView.setAdapter(adapter);
 
                 }
             }, new Response.ErrorListener() {
@@ -257,27 +276,18 @@ private  void fetchlaslocation()
                         final TextView textView = mview.findViewById(R.id.Nom_Doctor);
                         final TextView spec = mview.findViewById(R.id.Specialite);
                         final TextView Desc = mview.findViewById(R.id.Desc);
-                        final TextView facebook = mview.findViewById(R.id.facebook);
+                        final ImageView imageVieww=mview.findViewById(R.id.imagedet);
 
                         Button confirme = mview.findViewById(R.id.buttonOk);
+                        Button PlusDetaille = mview.findViewById(R.id.PlusDetaille);
                         Button iter = mview.findViewById(R.id.iter);
-                        TextView num_tel = mview.findViewById(R.id.Num_Tel);
-                        TextView sexe = mview.findViewById(R.id.Sexe2);
-                        textView.setText("Nom et Prenom : " + dc.getNom() + " " + dc.getPrenom());
+                        Picasso.with(Find_Doctors.this).load("http://51.83.72.59"+dc.getImage()).into(imageVieww);
+                        textView.setText(dc.getNom() + " " + dc.getPrenom());
                         spec.setText(dc.getSpecialite());
                         Desc.setText(dc.getDescription());
-                        if(dc.getFacebook().length()>0 && dc.getFacebook()!=null&& dc.getFacebook()!="null"&& !dc.getFacebook().contains("null"))
-                        {
-                            facebook.setText(dc.getFacebook());
-                        }
-                        else
-                        {
-                            facebook.setVisibility(View.GONE);
-                        }
 
 
-                        num_tel.setText("Numero de téléphone : " + dc.getNumeroTel());
-                        sexe.setText("Sexe : " + dc.getGen());
+
                         builder.setView(mview);
                         AlertDialog dialog = builder.create();
                         //loadingDialog.fermer();
@@ -389,7 +399,14 @@ private  void fetchlaslocation()
                             }
                         });
 
-
+                        PlusDetaille.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent myIntent = new Intent(Find_Doctors.this, DetailleDoctor.class);
+                                myIntent.putExtra("Doctor", dc);
+                                startActivity(myIntent);
+                            }
+                        });
 
 
 
@@ -416,12 +433,12 @@ private  void fetchlaslocation()
             });
 
 
-        /**********************************/
-
-
     }
 
-    @Override
+    @Override        /**********************************/
+
+
+
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode)
         {
@@ -439,6 +456,8 @@ private  void fetchlaslocation()
 
         ImageView markerImage = (ImageView) markerLayout.findViewById(R.id.marker_image);
         TextView markerRating = (TextView) markerLayout.findViewById(R.id.marker_text);
+
+
         markerImage.setImageResource(R.drawable.doctor);
         markerRating.setText(name);
 
@@ -465,177 +484,6 @@ private  void fetchlaslocation()
                 .strokeWidth(1));
     }
 
-/*
-    private double[] getLocation() {
-
-        final double aDouble[] = new double[2];
-        locationListener= new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                aDouble[0]=location.getLatitude();
-                aDouble[1]=location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-        if (ActivityCompat.checkSelfPermission(Find_Doctors.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Find_Doctors.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return  null;
-        }
-        else
-        {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        }
-
-
-
-        return  aDouble;
-    }
-    /*private double[] getLocation() {
-
-        //Check Permissions again
-        double aDouble[] = new double[2];
-        if (ActivityCompat.checkSelfPermission(Find_Doctors.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Find_Doctors.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-            return  null;
-        }
-        else {
-            Location LocationGps =locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Location LocationNetwork =locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            Location LocationPassive =locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-            if (LocationGps != null) {
-
-                double lat = LocationGps.getLatitude();
-                double longi =LocationGps.getLongitude();
-                // latitude=String.valueOf(lat);
-                // longitude=String.valueOf(longi);
-                aDouble[0]=lat;
-                aDouble[1]=longi;
-                String CityName = "";
-
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return aDouble;
-                //************************
-            } else if (LocationNetwork != null) {
-                double lat = LocationNetwork.getLatitude();
-                double longi =LocationNetwork.getLongitude();
-                //   latitude=String.valueOf(lat);
-                aDouble[0]=lat;
-                aDouble[1]=longi;
-                String CityName = "";
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    // Log.v("log_tag", "latitude" + latitude);
-                    // Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return aDouble;
-                //************************
-            }
-            //  showLocationTxt.setText("Votre localisation: " + CityName);}
-            else if (LocationPassive != null) {
-                double lat = LocationPassive.getLatitude();
-                double longi =LocationPassive.getLongitude();
-                aDouble[0]=lat;
-                aDouble[1]=longi;
-                String CityName = "";
-                //---------------
-
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    //  Log.v("log_tag", "latitude" + latitude);
-                    //  Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getCountryName();
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                //************************
-                return aDouble;
-            }
-
-            else {
-                double lat = LocationGps.getLatitude();
-                double longi =LocationGps.getLongitude();
-                // latitude=String.valueOf(lat);
-                // longitude=String.valueOf(longi);
-                aDouble[0]=lat;
-                aDouble[1]=longi;
-                String CityName = "";
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    //  Log.v("log_tag", "latitude" + latitude);
-                    // Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return aDouble;
-            }
-
-        }
-
-    }
-
-
-
-*/
 
     private String getAdresseName() {
         String Adresse;
@@ -658,129 +506,6 @@ return  "";
 
     }
 
-
-    /*
-    private String getAdresseName() {
-
-        //Check Permissions again
-
-        if (ActivityCompat.checkSelfPermission(Find_Doctors.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Find_Doctors.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-            return  "t";
-        }
-        else {
-            Location LocationGps =locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Location LocationNetwork =locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            Location LocationPassive =locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-            if (LocationGps != null) {
-                double lat = LocationGps.getLatitude();
-                double longi =LocationGps.getLongitude();
-                // latitude=String.valueOf(lat);
-                // longitude=String.valueOf(longi);
-                String CityName = "";
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    //  Log.v("log_tag", "latitude" + latitude);
-                    // Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return CityName;
-                //************************
-            } else if (LocationNetwork != null) {
-                double lat = LocationNetwork.getLatitude();
-                double longi =LocationNetwork.getLongitude();
-                //   latitude=String.valueOf(lat);
-//
-                String CityName = "";
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    // Log.v("log_tag", "latitude" + latitude);
-                    // Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return CityName;
-                //************************
-            }
-            //  showLocationTxt.setText("Votre localisation: " + CityName);}
-            else if (LocationPassive != null) {
-                double lat = LocationPassive.getLatitude();
-                double longi =LocationPassive.getLongitude();
-                // latitude=String.valueOf(lat);
-                // longitude=String.valueOf(longi);
-                String CityName = "";
-                //---------------
-
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    //  Log.v("log_tag", "latitude" + latitude);
-                    //  Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getCountryName();
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                //************************
-                return CityName;
-            }
-
-            else {
-                double lat = LocationGps.getLatitude();
-                double longi =LocationGps.getLongitude();
-                // latitude=String.valueOf(lat);
-                // longitude=String.valueOf(longi);
-                String CityName = "";
-                //---------------
-                Geocoder geocoder = new Geocoder(
-                        Find_Doctors.this, Locale
-                        .getDefault());
-                List<Address> addresses;
-                try {
-                    //  Log.v("log_tag", "latitude" + latitude);
-                    // Log.v("log_tag", "longitude" + longitude);
-                    addresses = geocoder.getFromLocation(lat, longi, 1);
-                    Log.v("log_tag", "addresses+)_+++" + addresses);
-                    CityName = addresses.get(0).getAddressLine(0);
-
-                    Log.v("log_tag", "CityName" + CityName);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return CityName;
-            }
-
-        }
-
-    }*/
 
     public LatLng getLocationFromAddress(Context context,String strAddress) {
 

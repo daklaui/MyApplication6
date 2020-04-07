@@ -105,8 +105,8 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                     Toast.makeText(LoginActivity.this, R.string.error_pwd, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                else if(!EMAIL_ADDRESS_PATTERN.matcher(strAccount).matches()){
-                    usernameEditText.setError("Veuillez saisir une adresse email valide. Par exemple prenom.nom@domaine.com!" );
+                else if(strAccount.length()!=8){
+                    usernameEditText.setError("Veuillez saisir un numero contient 8 chiffres" );
                     loadingDialog.fermer();
                 }
                 else  if(passwordEditText.length()<6)
@@ -118,7 +118,7 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                     jsonObject= new JSONObject();
                     try {
 
-                        jsonObject.put("EMAIL_CLIENT", usernameEditText.getText().toString());
+                        jsonObject.put("NUM_TEL", usernameEditText.getText().toString());
                         jsonObject.put("MDP_CLIENT", passwordEditText.getText().toString());
 
                     } catch (JSONException e) {
