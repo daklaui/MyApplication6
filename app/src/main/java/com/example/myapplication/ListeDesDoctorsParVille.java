@@ -41,6 +41,7 @@ RecyclerView recyclerView;
     LoadingDialog loadingDialog;
     TextView empty;
     ProgressBar b;
+    String urlConnection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,11 +52,12 @@ RecyclerView recyclerView;
         empty.setVisibility(View.GONE);
         b=findViewById(R.id.progressBar4);
         Intent myIntent = getIntent();
+        urlConnection=getString(R.string.urlConnection);
         /**********************************/
         loadingDialog=new LoadingDialog(this);
         loadingDialog.startLoadingDialog();
 
-        String JSON_URL = "http://51.83.72.59:9999/api/GetDoctorParGouverneratAndCat?id="+myIntent.getStringExtra("Gouvernerat")+"&id2="+myIntent.getStringExtra("Catego");
+        String JSON_URL = urlConnection+"/api/GetDoctorParGouverneratAndCat?id="+myIntent.getStringExtra("Gouvernerat")+"&id2="+myIntent.getStringExtra("Catego");
         Log.e("cchainedecone",JSON_URL);
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {

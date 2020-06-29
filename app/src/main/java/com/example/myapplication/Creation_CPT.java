@@ -67,7 +67,7 @@ CheckBox H,F;
      LoadingDialog loadingDialog;
      HashMap<String, Boolean>stringHashMap;
     AuthenticationPagerAdapter pagerAdapter;
-
+String urlConnection="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +82,7 @@ CheckBox H,F;
         pagerAdapter.addFragmet(new Step2());
         pagerAdapter.addFragmet(new Step3());
         viewPager.setAdapter(pagerAdapter);
+        urlConnection=getString(R.string.urlConnection);
         stringHashMap=new HashMap<String, Boolean>();
         loadingDialog = new LoadingDialog(Creation_CPT.this);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -163,7 +164,7 @@ CheckBox H,F;
                 try {
 loadingDialog.startLoadingDialog();
                     RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                    String URL = "http://51.83.72.59:9999/api/Client?id="+email;
+                    String URL = urlConnection+"/api/Client?id="+email;
                     // Request a string response from the provided URL.
                     StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                             new Response.Listener<String>() {
@@ -244,7 +245,7 @@ loadingDialog.fermer();
 try{
     loadingDialog.startLoadingDialog();
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String URL = "http://51.83.72.59:9999/api/Client?id="+cin;
+            String URL = urlConnection+"/api/Client?id="+cin;
             // Request a string response from the provided URL.
             StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                     new Response.Listener<String>() {
@@ -319,7 +320,7 @@ try{
      try {
 loadingDialog.startLoadingDialog();
          RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-         String URL = "http://51.83.72.59:9999/api/Client?id="+num_tel;
+         String URL = urlConnection+"/api/Client?id="+num_tel;
          // Request a string response from the provided URL.
          StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                  new Response.Listener<String>() {
@@ -349,7 +350,7 @@ loadingDialog.fermer();
                                      btnValide.setEnabled(false);
                                      loadingDialog.startLoadingDialog();
                                      /***************************************************SENDMESSAGECONFIRMATION***************************************************************/
-                                     _code=SEND_MESSAGE(num_tel);
+                                     _code=4000;//SEND_MESSAGE(num_tel);;
                                      AlertDialog.Builder builder= new AlertDialog.Builder(Creation_CPT.this);
                                      View mview=getLayoutInflater().inflate(R.layout.dialoge_confirme_code,null);
                                      final EditText editText=mview.findViewById(R.id.editText);
@@ -399,7 +400,7 @@ loadingDialog.fermer();
                                                      Log.e("dateeee",jsonObject.toString());
 
 
-                                                     String URL = "http://51.83.72.59:9999/api/Client";
+                                                     String URL = urlConnection+"/api/Client";
                                                      RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                                                      JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
                                                              new Response.Listener<JSONObject>() {
@@ -641,7 +642,7 @@ return randomNumber;
         try {
 
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String URL = "http://51.83.72.59:9999/api/Client?id="+id;
+            String URL = urlConnection+"/api/Client?id="+id;
             // Request a string response from the provided URL.
             StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                     new Response.Listener<String>() {

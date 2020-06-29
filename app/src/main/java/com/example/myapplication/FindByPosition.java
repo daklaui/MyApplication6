@@ -83,7 +83,7 @@ public class FindByPosition extends AppCompatActivity {
     LocationRequest mLocationRequest;
     LatLng l;
     ProgressBar b;
-
+String urlConnection="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +106,7 @@ public class FindByPosition extends AppCompatActivity {
             getSupportActionBar().setTitle(myIntent1.getStringExtra("Catego"));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+            urlConnection=getString(R.string.urlConnection);
             loadingDialog.fermer();
 
 
@@ -124,7 +124,7 @@ public class FindByPosition extends AppCompatActivity {
     }
     private void MapActions()
     {
-        String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent1.getStringExtra("Catego");
+        String JSON_URL = urlConnection+"/api/Doctor?id=" + myIntent1.getStringExtra("Catego");
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
             @Override

@@ -68,6 +68,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
     TextView mypos;
     private static CategroieAdpater adapter;
     LoadingDialog loadingDialog;
+    String urlConnection="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
         /**********************************/
         loadingDialog.startLoadingDialog();
         GetApi();
+        urlConnection=getString(R.string.urlConnection);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -158,7 +160,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
     }
     private void GetApi()
     {
-        String JSON_URL = "http://51.83.72.59:9999/api/Categorie";
+        String JSON_URL = getString(R.string.urlConnection)+"/api/Categorie";
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
             @Override
@@ -208,7 +210,7 @@ public class Liste_Des_Categories extends AppCompatActivity {
                     } else if (error instanceof ParseError) {
                         errorCode = -8;
                     }
-                    Toast.makeText(Liste_Des_Categories.this, error.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Liste_Des_Categories.this, error.toString(), Toast.LENGTH_LONG).show();
                 }
                 //
             }

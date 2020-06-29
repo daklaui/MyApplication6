@@ -47,6 +47,7 @@ public class Creation_Compte extends AppCompatActivity {
     DatePickerDialog.OnDateSetListener dateSetListener;
     JSONObject jsonObject;
     SharedPreferences sharedpreferences;
+    String urlConnect="";
     public static final String MyPREFERENCES = "MyPrefs" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,8 @@ public class Creation_Compte extends AppCompatActivity {
         Adress=findViewById(R.id.Adresse);
         cp=findViewById(R.id.Code_Postal);
         MotDePass=findViewById(R.id.Password);
+        urlConnect=getString(R.string.urlConnection);
+
         /******************************************************/
 
         Calendar calendar = Calendar.getInstance();
@@ -98,7 +101,7 @@ public class Creation_Compte extends AppCompatActivity {
                 Log.e("date",jsonObject.toString());
 
 
-                String URL = "http://92.222.83.184:9999/api/Client";
+                String URL = urlConnect+"/api/Client";
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
                         new Response.Listener<JSONObject>() {

@@ -43,13 +43,14 @@ public class listeDesGouvernerats extends AppCompatActivity {
     private RecyclerView viewr;
     private List<String> cities = new ArrayList<>();
     LoadingDialog loadingDialog;
-    String URL="http://51.83.72.59:9999/api/GetListeDesGouvernerats";
+
+    String URL="";
     LocationManager locationManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liste_des_gouvernerats);
-
+URL=getString(R.string.urlConnection)+"/api/GetListeDesGouvernerats";
         Toolbar toolbar = findViewById(R.id.toolbargouvernerat);
         setSupportActionBar(toolbar);
 

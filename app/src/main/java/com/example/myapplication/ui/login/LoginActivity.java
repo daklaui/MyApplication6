@@ -61,12 +61,13 @@ public class LoginActivity extends AppCompatActivity {
     private LoginViewModel loginViewModel;
 SharedPreferences sharedpreferences;
 TextView register_now;
+String urlConnection="";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         register_now=findViewById(R.id.register_now);
-
+        urlConnection=getString(R.string.urlConnection);
         register_now.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,7 +127,7 @@ final LoadingDialog loadingDialog = new LoadingDialog(LoginActivity.this);
                         e.printStackTrace();
                     }
 
-                    String JSON_URL = "http://51.83.72.59:9999/api/Connect";
+                    String JSON_URL = urlConnection+"/api/Connect";
                     RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                     JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, JSON_URL, jsonObject,
                             new Response.Listener<JSONObject>() {

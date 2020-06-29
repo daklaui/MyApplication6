@@ -36,7 +36,7 @@ public class Liste_Des_Doctors extends AppCompatActivity {
     ListView listView;
     private static final int PHONE_CALL_REQUEST=0;
     DoctorAdpater adapter;
-
+String urlConnection="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +45,8 @@ public class Liste_Des_Doctors extends AppCompatActivity {
 
         Intent myIntent = getIntent();
         /**********************************/
-
-        String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent.getStringExtra("key_search");
+        urlConnection=getString(R.string.urlConnection);
+        String JSON_URL = urlConnection+"/api/Doctor?id=" + myIntent.getStringExtra("key_search");
        final String adress=myIntent.getStringExtra("Adresse");
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);

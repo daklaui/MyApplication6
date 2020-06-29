@@ -88,6 +88,7 @@ public class Find_Doctors extends AppCompatActivity implements OnMapReadyCallbac
     SharedPreferences sharedPreferences;
 LocationListener locationListener;
     Intent myIntent1;
+    String urlConnection="";
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +102,7 @@ LocationListener locationListener;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        urlConnection=getString(R.string.urlConnection);
         fetchlaslocation();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
@@ -203,7 +204,7 @@ private  void fetchlaslocation()
 
             mMap.addMarker(new MarkerOptions().position(sydney).title("Ma Position"));
 
-            String JSON_URL = "http://51.83.72.59:9999/api/Doctor?id=" + myIntent1.getStringExtra("key_search");
+            String JSON_URL = urlConnection+"/api/Doctor?id=" + myIntent1.getStringExtra("key_search");
            // final String adress=getAdresseName();
              final HashMap<Marker, Doctor> markerIdMapping = new HashMap<>();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -281,7 +282,7 @@ private  void fetchlaslocation()
                         Button confirme = mview.findViewById(R.id.buttonOk);
                         Button PlusDetaille = mview.findViewById(R.id.PlusDetaille);
                         Button iter = mview.findViewById(R.id.iter);
-                        Picasso.with(Find_Doctors.this).load("http://51.83.72.59"+dc.getImage()).into(imageVieww);
+                        Picasso.with(Find_Doctors.this).load(urlConnection+dc.getImage()).into(imageVieww);
                         textView.setText(dc.getNom() + " " + dc.getPrenom());
                         spec.setText(dc.getSpecialite());
                         Desc.setText(dc.getDescription());
@@ -310,7 +311,7 @@ private  void fetchlaslocation()
 
                                 }
 
-                                String URL = "http://51.83.72.59:9999/api/values";
+                                String URL = urlConnection+"/api/values";
                                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                                 JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
                                         new Response.Listener<JSONObject>() {

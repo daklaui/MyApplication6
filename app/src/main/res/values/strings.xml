@@ -48,4 +48,5 @@
     <string name="swipe_left_for_register">Swipe Left for Register</string>
     <string name="swipe_right_for_login">Swipe Right for Login</string>
     <string name="title_activity_find__doctors">Map</string>
+    <string name="urlConnection">http://92.222.83.184:9095</string>
 </resources>

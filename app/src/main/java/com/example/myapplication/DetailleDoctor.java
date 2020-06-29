@@ -63,6 +63,7 @@ public class DetailleDoctor extends AppCompatActivity {
     private static final int REQUEST_CODE= 101;
     private static final int PHONE_CALL_REQUEST = 0;
     ImageView imageView;
+    String urlConnection="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +78,7 @@ public class DetailleDoctor extends AppCompatActivity {
         imageView=findViewById(R.id.imageDoctor);
         fetchlaslocation();
         Intent myIntent = getIntent();
-
+urlConnection=getString(R.string.urlConnection);
         final Doctor doctor = (Doctor)myIntent.getSerializableExtra("Doctor");
         final TextView textView = findViewById(R.id.Nom_Pren_Doctor);
         final TextView spec = findViewById(R.id.Specialite_Doctor);
@@ -86,7 +87,7 @@ public class DetailleDoctor extends AppCompatActivity {
         final TextView Horaire = findViewById(R.id.Horaire);
         final Button facebook = findViewById(R.id.facebook);
 
-       String imageurl="http://51.83.72.59"+doctor.getImage();
+       String imageurl=urlConnection+doctor.getImage();
 
         Picasso.with(this).load(imageurl).fit().centerInside().into(imageView);
 
@@ -160,7 +161,7 @@ public class DetailleDoctor extends AppCompatActivity {
 
                 }
 
-                String URL = "http://51.83.72.59:9999/api/values";
+                String URL = urlConnection+"/api/values";
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonObject,
                         new Response.Listener<JSONObject>() {
